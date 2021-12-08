@@ -15,7 +15,6 @@ library(openxlsx)
 # Load data on research data sets from xlsx ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-path <- "~/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/Open Data datasets for FAIR.xlsx"
 path <- "input/open_data_datasets_for_fair_assessment.xlsx"  
 charite_rd_2020 <- read_excel(path = path, 
                               sheet = "OD 2d round", na = "NA")
