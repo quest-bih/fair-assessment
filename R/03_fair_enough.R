@@ -49,12 +49,12 @@ rate <- rate_delay(10)
 slow_fair_enough <-
   slowly(fair_enough_server, rate = rate, quiet = FALSE)
 
-test_fair_enough_slowly <-
+fair_enough_list <-
   map(fuji_guid$guid, slow_fair_enough)
 
 # Save data locally
-save(test_fair_enough_slowly, file = "output-Rdata/fair_enough_slowly_list.Rdata")
-load("output-Rdata/fair_enough_slowly_list.Rdata")
+save(fair_enough_list, file = "output-Rdata/fair_enough_list.Rdata")
+load("output-Rdata/fair_enough_list.Rdata")
 
 # NCmisc::list.functions.in.file("fair_assessments/03_fair_enough.R")
 

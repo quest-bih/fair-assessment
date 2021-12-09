@@ -53,3 +53,7 @@ fair_evaluation_data <- map(fuji_guid$guid, fair_evaluation_server_slowly)
 
 save(fair_evaluation_data, file = "output-Rdata/fair_evaluation_data.Rdata")
 load("output-Rdata/fair_evaluation_data.Rdata")
+
+# Login to server with ssh jtaubitz@s-quest.bihealth.org
+# Password
+# Exit session with Ctrl+D
