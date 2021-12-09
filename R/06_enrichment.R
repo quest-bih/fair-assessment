@@ -104,7 +104,8 @@ unpaywall_fo_r_join %>%
 re3data_request <- GET("http://re3data.org/api/v1/repositories")
 re3data_IDs <- xml_text(xml_find_all(read_xml(re3data_request), xpath = "//id"))
 URLs <- paste("https://www.re3data.org/api/v1/repository/", re3data_IDs, sep = "")
-URLs2 <- URLs[1:100]
+#URLs2 <- URLs[1:100]
+#URLs3 <- c("https://www.re3data.org/api/v1/repository/r3d100011137", "https://www.re3data.org/api/v1/repository/r3d100011137")
 
 # Define what information about the repositories should be requested
 # re3data Metadata Schema: https://gfzpublic.gfz-potsdam.de/rest/items/item_758898_6/component/file_775891/content
@@ -117,7 +118,9 @@ extract_data <-
     "repositoryIdentifier", 
     "type",
     "subject", 
-    "keyword", 
+    "keyword",
+    "policyName",
+    "policyURL",
     "dataLicenseName",
     "pidSystem"
   )
@@ -131,7 +134,7 @@ paste_unique_xml <- compose(
 )
 
 extract_repository_info <- function(url) {
-  
+  l <- list()
   for (i in seq_along(extract_data)) {
   l[i] <- list(
     paste_unique_xml(paste0("//r3d:", extract_data[i])) # must be object
@@ -149,7 +152,7 @@ l
 # 
 # for (url in URLs) {
 #   repository_metadata_request <- GET(url)
-#   repository_metadata_XML <-read_xml(repository_metadata_request) 
+#   repository_metadata_XML <-read_xml(repository_metadata_request)
 #   results_list <- extract_repository_info(repository_metadata_XML)
 #   repository_info <- rbind(repository_info, results_list)
 # }
@@ -166,6 +169,10 @@ repository_info <- repository_info %>%
 repository_info <- repository_info %>% mutate_all(na_if, "")
 repository_info <- repository_info %>% mutate(certificate = ifelse(is.na(certificate), FALSE, TRUE))
 repository_info <- repository_info %>% separate_rows(type, sep = "_AND_")
+
+repository_info2 <- repository_info %>% separate_rows(policyName, policyURL, sep = "_AND_") %>% 
+  distinct()
+
 
 # Classification
 # https://www.dfg.de/en/dfg_profile/statutory_bodies/review_boards/subject_areas/index.jsp
