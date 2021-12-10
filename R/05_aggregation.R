@@ -17,7 +17,7 @@ library(tidyverse)
 source("R/01_rdm_ids.R")
 
 load("output-Rdata/fuji_local_list.Rdata")
-load("output-Rdata/fair_enough_slowly_list.Rdata")
+load("output-Rdata/fair_enough_list.Rdata")
 #load("output-Rdata/fair_evaluation_data.Rdata")
 load("output-Rdata/fuji_guid.Rdata")
 
@@ -124,9 +124,9 @@ fuji_guid_scheme <-
 
 # Extract results from data
 fair_enough_summary <- map_dfr(
-  seq_along(test_fair_enough_slowly),
-  ~ bind_rows(test_fair_enough_slowly[[.x]][["score"]]) %>%
-    mutate(guid = test_fair_enough_slowly[[.x]][["resource_uri"]], .before = total_score)
+  seq_along(fair_enough_list),
+  ~ bind_rows(fair_enough_list[[.x]][["score"]]) %>%
+    mutate(guid = fair_enough_list[[.x]][["resource_uri"]], .before = total_score)
 ) %>% distinct() %>%
   select(guid, fair_enough_percent = percent) %>%
   left_join(fuji_guid, by = "guid")
