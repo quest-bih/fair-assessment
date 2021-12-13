@@ -10,31 +10,32 @@
 cat("\014") # Clear your console
 rm(list = ls()) # Clear your environment
 
-library(fuzzyjoin)
+#library(fuzzyjoin)
 library(httr)
 library(janitor)
 library(tidyverse)
 library(readxl)
 library(roadoi)
-library(stringdist)
+#library(stringdist)
 library(tm)
 library(xml2)
 
 
 load("output-Rdata/charite_rd_2020_join.Rdata")
+source("R/01_rdm_ids.R")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Get unpaywall data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-article_dois <- charite_rd_2020_join %>%
+article_dois <- charite_rd_2020_clean %>%
   pull(article) %>%
   unique
 
 # output_unpaywall <- roadoi::oadoi_fetch(dois = article_dois,
 #                                         email = "jan.taubitz@charite.de",
 #                                         .progress = "text")
-
+# 
 # save(output_unpaywall, file = "output-Rdata/output_unpaywall.Rdata")
 load(file = "output-Rdata/output_unpaywall.Rdata")
 
@@ -79,6 +80,16 @@ unpaywall_fo_r_join <- output_unpaywall_longer %>%
   group_by(doi) %>%
   sample_n(1)
 
+
+charite_rd_2020_join_2 <- charite_rd_2020_join %>%
+  left_join(output_unpaywall %>% select(doi, journal_name, publisher), by = c("article" = "doi")) %>%
+  left_join(unpaywall_fo_r_join %>% select(doi, fo_r), by = c("article" = "doi"))
+
+
+# Join with long dataframe
+# https://stackoverflow.com/questions/59987662/merge-two-data-frames-based-on-multiple-columns-in-r
+
+
 unpaywall_fo_r_join %>%
   group_by(fo_r) %>%
   summarise(count = n()) %>%
@@ -87,10 +98,6 @@ unpaywall_fo_r_join %>%
   ggplot(aes(reorder(fo_r, perc), perc)) +
   geom_col() +
   coord_flip()
-
-# Join with long dataframe
-# https://stackoverflow.com/questions/59987662/merge-two-data-frames-based-on-multiple-columns-in-r
-
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # re3data ----
@@ -181,8 +188,8 @@ repository_info2 <- repository_info %>% separate_rows(policyName, policyURL, sep
 # Join re3data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-rdata <- charite_rd_2020_join %>%
-  select(1:4) %>%
+rdata <- charite_rd_2020_clean %>%
+  select(article, best_identifier, repository) %>%
   mutate_all(str_to_lower) %>%
   mutate(repository = removePunctuation(repository)) %>%
   mutate(repository = removeWords(repository, stopwords("english"))) %>%
@@ -202,11 +209,26 @@ rep <- repository_info %>%
 
 
 r3data_join <- rdata %>% left_join(rep, by = "repository", keep = TRUE) %>%
- # select(-repositoryURL, -repositoryIdentifier) %>%
-  distinct(repository.x, .keep_all = TRUE) %>%
+  #select(-repository_url, -repository_identifier) %>%
+  #distinct(repository.x, .keep_all = TRUE) %>%
+  distinct(article, best_identifier, .keep_all = TRUE) %>%
   relocate(repository.y, .after = repository.x) %>%
   mutate(is_re3data = case_when(is.na(re3data_org_identifier) ~ FALSE,
                               TRUE ~ TRUE))
 
+charite_rd_2020_join_3 <- charite_rd_2020_join_2 %>% 
+  mutate(best_identifier = str_to_lower(best_identifier)) %>%
+  left_join(r3data_join, by = c("best_identifier"))
 
+
+path = "output/output.xlsx"
+
+save_data <- function(path) {
+  wb <- createWorkbook()
+  addWorksheet(wb, "all_ids")
+  writeData(wb, "all_ids", charite_rd_2020_join_3, keepNA = TRUE)
+  saveWorkbook(wb, path, overwrite = TRUE)
+}
+
+save_data(path)
 
