@@ -101,7 +101,9 @@ fuji_license <-
   ))
 
 fuji_license <- fuji_license %>%
-  select(rd_id, license = license_2)
+  select(rd_id, license = license_2) %>%
+  mutate_all(str_to_lower) %>%
+  distinct()
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Extract guid_scheme ----
@@ -114,6 +116,7 @@ fuji_guid_scheme <-
       mutate(guid_scheme = fuji_local_list[[.x]][["results"]][[1]][["output"]][["guid_scheme"]])) %>%
   select(rd_id = object_identifier, guid_scheme) %>%
   mutate_all(~ str_trim(.)) %>%
+  mutate_all(str_to_lower) %>%
   distinct()
 
 
@@ -134,7 +137,8 @@ fair_enough_summary <- map_dfr(
 fuji_fair_enough_summary_results <-
   fuji_summary_results_all %>% full_join(fair_enough_summary, by = "rd_id") %>%
   select(-id) %>%
-  distinct()
+  mutate_all(str_to_lower) %>%
+  distinct() 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Combine data ----
@@ -151,7 +155,10 @@ charite_rd_2020_join <- charite_rd_2020_clean %>%
   
 save(charite_rd_2020_join, file = "output-Rdata/charite_rd_2020_join.Rdata")
 
+load("output-Rdata/charite_rd_2020_join.Rdata")
 
+charite_rd_2020_license <- charite_rd_2020_join %>%
+  select(article, best_identifier, repository, repository_type, license)
 
 
 results_long <-

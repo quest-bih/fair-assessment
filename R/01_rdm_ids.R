@@ -85,6 +85,8 @@ is_general_purpose <-
 charite_rd_2020_clean <- charite_rd_2020 %>%
   filter(own_or_reuse_data == "own_open_data") %>%
   mutate(article = str_to_lower(str_trim(article))) %>%
+  mutate(article = str_replace_all(article, "%28", "("), 
+         article = str_replace_all(article, "%29", ")")) %>%
   mutate(
     best_identifier = if_else(is.na(best_identifier), identifier, best_identifier)) %>%
   mutate(best_identifier = str_to_lower(str_trim(best_identifier))) %>%
@@ -98,6 +100,7 @@ charite_rd_2020_clean <- charite_rd_2020 %>%
       TRUE ~ open_data_category
     )) %>%
   select(article, best_identifier, repository, repository_type)
+
 
 # Create vector with best identifiers for querying assessment tools
 charite_rd_2020_guid <- charite_rd_2020_clean %>%

@@ -209,8 +209,8 @@ rep <- repository_info %>%
 
 
 r3data_join <- rdata %>% left_join(rep, by = "repository", keep = TRUE) %>%
-  #select(-repository_url, -repository_identifier) %>%
-  #distinct(repository.x, .keep_all = TRUE) %>%
+  select(-repository_url, -repository_identifier) %>%
+  distinct(repository.x, .keep_all = TRUE) %>%
   distinct(article, best_identifier, .keep_all = TRUE) %>%
   relocate(repository.y, .after = repository.x) %>%
   mutate(is_re3data = case_when(is.na(re3data_org_identifier) ~ FALSE,
