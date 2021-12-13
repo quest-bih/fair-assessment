@@ -210,20 +210,18 @@ rep <- repository_info %>%
 
 r3data_join <- rdata %>% left_join(rep, by = "repository", keep = TRUE) %>%
   select(-repository_url, -repository_identifier) %>%
-  distinct(repository.x, .keep_all = TRUE) %>%
+ # distinct(repository.x, .keep_all = TRUE) %>%
   distinct(article, best_identifier, .keep_all = TRUE) %>%
   relocate(repository.y, .after = repository.x) %>%
   mutate(is_re3data = case_when(is.na(re3data_org_identifier) ~ FALSE,
                               TRUE ~ TRUE))
 
 charite_rd_2020_join_3 <- charite_rd_2020_join_2 %>% 
-  mutate(best_identifier = str_to_lower(best_identifier)) %>%
   left_join(r3data_join, by = c("best_identifier"))
-
 
 path = "output/output.xlsx"
 
-save_data <- function(path) {
+save_data <- function(path, ) {
   wb <- createWorkbook()
   addWorksheet(wb, "all_ids")
   writeData(wb, "all_ids", charite_rd_2020_join_3, keepNA = TRUE)
@@ -231,4 +229,26 @@ save_data <- function(path) {
 }
 
 save_data(path)
+
+save_data <- function(path, worksheet, df) {
+  wb <- createWorkbook()
+  addWorksheet(wb, worksheet)
+  writeData(wb, worksheet, df, keepNA = TRUE)
+  saveWorkbook(wb, path, overwrite = TRUE)
+}
+
+data_policy_2020 <- charite_rd_2020_join_3 %>%
+  group_by(repository.x, repository_type, policy_name, policy_url, data_license_name) %>%
+  summarise(count = n ()) %>%
+  arrange(desc(count))
+
+save_data(path = "output/data_policy_2020.xlsx", worksheet = "data_policy_2020", df = data_policy_2020)
+
+classification_2020 <- charite_rd_2020_join_3 %>%
+  group_by(repository.x, repository_type, type, subject, keyword) %>%
+  summarise(count = n ()) %>%
+  arrange(desc(count))
+
+save_data(path = "output/classification_2020.xlsx", worksheet = "classification_2020", df = classification_2020)
+
 

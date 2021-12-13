@@ -158,7 +158,19 @@ save(charite_rd_2020_join, file = "output-Rdata/charite_rd_2020_join.Rdata")
 load("output-Rdata/charite_rd_2020_join.Rdata")
 
 charite_rd_2020_license <- charite_rd_2020_join %>%
-  select(article, best_identifier, repository, repository_type, license)
+  select(article, best_identifier, repository, repository_type, license) %>%
+  arrange(desc(repository_type), repository)
+
+path = "output/licenses_2020.xlsx"
+
+save_data <- function(path) {
+  wb <- createWorkbook()
+  addWorksheet(wb, "licenses_2020")
+  writeData(wb, "licenses_2020", charite_rd_2020_license, keepNA = TRUE)
+  saveWorkbook(wb, path, overwrite = TRUE)
+}
+
+save_data(path)
 
 
 results_long <-
