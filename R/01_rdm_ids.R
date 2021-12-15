@@ -79,27 +79,30 @@ is_general_purpose <-
   c("^cyverse", "^github", "^tu datalib") %>%
   glue_collapse(sep = "|")
 
-# TODO 10.1016/s0140-6736%2820%2930750-9
-
-
 charite_rd_2020_clean <- charite_rd_2020 %>%
+  # Analyze only own open data
   filter(own_or_reuse_data == "own_open_data") %>%
-  mutate(article = str_to_lower(str_trim(article))) %>%
+  select(article,
+         identifier,
+         best_identifier,
+         repository,
+         repository_type = open_data_category) %>%
+  mutate(across(where(is.character), str_trim)) %>%
+  mutate(across(c(article, starts_with("repository")), str_to_lower)) %>%
   mutate(article = str_replace_all(article, "%28", "("), 
          article = str_replace_all(article, "%29", ")")) %>%
-  mutate(
-    best_identifier = if_else(is.na(best_identifier), identifier, best_identifier)) %>%
-  mutate(best_identifier = str_to_lower(str_trim(best_identifier))) %>%
-  relocate(best_identifier, .after = identifier) %>%
+  # If applicable, use best_identifier
+  mutate(best_identifier = case_when(is.na(best_identifier) ~ identifier,
+                                     TRUE ~ best_identifier)) %>%
   filter(str_detect(best_identifier, "^http|^10|^doi")) %>%
-  mutate(repository = str_to_lower(str_trim(repository))) %>%
+  # Classify repository type
   mutate(
     repository_type = case_when(
       str_detect(repository, is_field_specific) ~ "field-specific repository",
       str_detect(repository, is_general_purpose) ~ "general-purpose repository",
-      TRUE ~ open_data_category
+      TRUE ~ repository_type
     )) %>%
-  select(article, best_identifier, repository, repository_type)
+  select(-identifier)
 
 
 # Create vector with best identifiers for querying assessment tools
@@ -107,28 +110,33 @@ charite_rd_2020_guid <- charite_rd_2020_clean %>%
   pull(best_identifier) %>%
   unique()
 
-# count_repos <- charite_rd_2020 %>%
-#   group_by(repository, repository_type) %>%
-#   summarise(count = n()) %>%
-#   filter(count >= 5) %>%
-#   arrange(-count)
-# 
-# save_data <- function(path) {
-#   wb <- createWorkbook()
-#   addWorksheet(wb, "repositories")
-#   writeData(wb, "repositories", count_repos, keepNA = TRUE)
-#   saveWorkbook(wb, path, overwrite = TRUE)
-# }
-# 
-# path = "output/frequent_repositories.xlsx"
-# save_data(path)
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Function to save df output as xlsx ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# test <- charite_rd_2020 %>%
-#   group_by(identifier) %>%
-#   filter(n() > 1)
-# 
-# charite_rd_2020 %>%
-#   distinct(own_or_reuse_data)
+save_data_xlsx <- function(df, name) {
+  if(class(df) != "list" ) stop("Df must be a list")
+  wb <- createWorkbook()
+  
+  for (i in seq_along(df)) {
+  addWorksheet(wb, sheetName = name[i])
+  writeData(wb, sheet = name[i], x = df[[i]], keepNA = TRUE)
+  }
+  
+  saveWorkbook(wb, paste0("output/", name[1], ".xlsx"), overwrite = TRUE)
+}
+
+# save_data(df = list(charite_rd_2020_clean), name = c("input_clean"))
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Remove unused obejcts ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+rm(path, charite_rd_2020, is_field_specific, is_general_purpose)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# End ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 

@@ -1,3 +1,25 @@
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# This script prepares the FAIR Evaluation Service server ----
+# Contact: jan.taubitz@charite.de
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Prepare R environment----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+cat("\014") # Clear your console
+rm(list = ls()) # Clear your environment
+
+library(tidyverse)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load guids from from previous data processing ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# Load GUIS from FUJI Assessment
+load("output-Rdata/fuji_guid.Rdata")
+write_csv(fuji_guid,"output-Rdata/fuji_guid.csv")
+
 # Login to server with ssh jtaubitz@s-quest.bihealth.org
 # Password
 # Screen
@@ -20,7 +42,7 @@ ssh_exec_wait(session, command = "ls")
 path = "/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment/R/04_fair_evaluation_service_test.R"
 scp_upload(session, path)
 
-path_guid = "/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment/output-Rdata/fuji_guid_2.csv"
+path_guid = "/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment/output-Rdata/fuji_guid.csv"
 scp_upload(session, path_guid)
 
 # ssh_exec_wait(session, command = "-a /System/Applications/TextEdit.app 04_fair_evaluation_service_test.R")

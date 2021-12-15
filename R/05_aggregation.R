@@ -44,8 +44,7 @@ fuji_summary <-
 fuji_summary_results <- fuji_summary %>%
   filter(id == "score_percent") %>%
   select(1, 2, 10) %>%
-  rename(fuji_percent = FAIR) %>%
-  distinct()
+  rename(fuji_percent = FAIR)
 
 # Extract only score_percent and FAIR
 fuji_summary_results_all <- fuji_summary %>%
@@ -55,8 +54,7 @@ fuji_summary_results_all <- fuji_summary %>%
          fuji_percent_f = `F`, 
          fuji_percent_a = `A`, 
          fuji_percent_i = `I`, 
-         fuji_percent_r = `R`) %>%
-  distinct()
+         fuji_percent_r = `R`)
 
 fuji_mean_median_max <- fuji_summary_results_all %>%
   #  group_by(id) %>%
@@ -75,8 +73,8 @@ fuji_license <-
     ~ bind_rows(fuji_local_list[[.x]][["results"]][[11]][["output"]]) %>%
       mutate(rd_id = fuji_local_list[[.x]][["request"]][["object_identifier"]])
   ) %>%
-  mutate_all(~ str_trim(.)) %>%
-  mutate_all(~ na_if(., "")) %>%
+  mutate_all(str_trim) %>%
+  mutate_all(na_if, "") %>%
   mutate(license = str_to_lower(license)) %>%
   mutate(
     license_2 = case_when(
@@ -102,8 +100,7 @@ fuji_license <-
 
 fuji_license <- fuji_license %>%
   select(rd_id, license = license_2) %>%
-  mutate_all(str_to_lower) %>%
-  distinct()
+  mutate(license = str_to_lower(license))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Extract guid_scheme ----
@@ -115,9 +112,7 @@ fuji_guid_scheme <-
     ~ bind_rows(fuji_local_list[[.x]][["request"]]) %>%
       mutate(guid_scheme = fuji_local_list[[.x]][["results"]][[1]][["output"]][["guid_scheme"]])) %>%
   select(rd_id = object_identifier, guid_scheme) %>%
-  mutate_all(~ str_trim(.)) %>%
-  mutate_all(str_to_lower) %>%
-  distinct()
+  mutate_all(str_trim)
 
 
 
@@ -136,9 +131,7 @@ fair_enough_summary <- map_dfr(
 
 fuji_fair_enough_summary_results <-
   fuji_summary_results_all %>% full_join(fair_enough_summary, by = "rd_id") %>%
-  select(-id) %>%
-  mutate_all(str_to_lower) %>%
-  distinct() 
+  select(-id)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Combine data ----
@@ -148,29 +141,23 @@ charite_rd_2020_join <- charite_rd_2020_clean %>%
   left_join(fuji_fair_enough_summary_results,
             by = c("best_identifier" = "rd_id")) %>%
   relocate(guid, .after = best_identifier) %>%
-  drop_na(guid) %>%
+  #drop_na(guid) %>%
   left_join(fuji_license, by = c("best_identifier" = "rd_id")) %>%
   mutate(license = replace_na(license, "no license")) %>%
   left_join(fuji_guid_scheme, by = c("best_identifier" = "rd_id"))
   
 save(charite_rd_2020_join, file = "output-Rdata/charite_rd_2020_join.Rdata")
-
 load("output-Rdata/charite_rd_2020_join.Rdata")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Save license data to xlsx ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 charite_rd_2020_license <- charite_rd_2020_join %>%
   select(article, best_identifier, repository, repository_type, license) %>%
   arrange(desc(repository_type), repository)
 
-path = "output/licenses_2020.xlsx"
-
-save_data <- function(path) {
-  wb <- createWorkbook()
-  addWorksheet(wb, "licenses_2020")
-  writeData(wb, "licenses_2020", charite_rd_2020_license, keepNA = TRUE)
-  saveWorkbook(wb, path, overwrite = TRUE)
-}
-
-save_data(path)
+save_data_xlsx(df = list(charite_rd_2020_license), name = "licenses_2020")
 
 
 results_long <-
@@ -179,7 +166,7 @@ results_long <-
 
 summary_grouped_repository <- results_long %>%
   drop_na(value) %>%
-  group_by(assessment_tool, open_data_category) %>%
+  group_by(assessment_tool, repository_type) %>%
   summarize(mean = round(mean(value), 2),
             median = median(value),
             count = n())
@@ -191,22 +178,6 @@ summary <- results_long %>%
             median = median(value),
             count = n())
 
-path = "~/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair_assessment.xlsx"
-
-save_data <- function(path) {
-  wb <- createWorkbook()
-  addWorksheet(wb, "all_ids")
-  writeData(wb, "all_ids", charite_rd_2020_join, keepNA = TRUE)
-  addWorksheet(wb, "summary")
-  writeData(wb, "summary", summary, keepNA = TRUE)
-  addWorksheet(wb, "summary_grouped_repository")
-  writeData(wb,
-            "summary_grouped_repository",
-            summary_grouped_repository,
-            keepNA = TRUE)
-  saveWorkbook(wb, path, overwrite = TRUE)
-}
-
-save_data(path)
+save_data_xlsx(list(summary, summary_grouped_repository), name= c("summary", "summary_repository"))
 
 

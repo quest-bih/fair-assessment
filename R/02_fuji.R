@@ -20,6 +20,10 @@ library(tidyverse)
 # Load data 
 source("R/01_rdm_ids.R")
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Test guid´s status codes ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 # Test guids
 url_tester <- function(url_list){
   url_list %>%
@@ -36,6 +40,10 @@ url_tester <- function(url_list){
 # Try this function on the urls object
 url_test <- url_tester(charite_rd_2020_guid )
 
+save(url_test, file = "output-Rdata/url_test.Rdata")
+load("output-Rdata/url_test.Rdata")
+
+url_test_df <- url_test %>% tibble() %>% mutate(name = names(url_test)) %>% relocate(2, value = 1) %>% filter(value != "200")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # FUJI data ----

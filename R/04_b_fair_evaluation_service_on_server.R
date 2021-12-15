@@ -22,7 +22,7 @@ library(readr)
 #saveRDS(fuji_guid, "output-Rdata/fuji_guid_2.Rdata")
 #fuji_guid <- read_rds("fuji_guid_2.Rdata")
 # write_csv(fuji_guid,"output-Rdata/fuji_guid_2.csv")
-fuji_guid <- read_csv("fuji_guid_2.csv")
+fuji_guid <- read_csv("fuji_guid.csv")
 
 #fuji_guid_test <- fuji_guid %>%
 #  sample_n(10)
