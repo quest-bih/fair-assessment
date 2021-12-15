@@ -83,7 +83,13 @@ unpaywall_fo_r_join <- output_unpaywall_longer %>%
 
 charite_rd_2020_join_2 <- charite_rd_2020_join %>%
   left_join(output_unpaywall %>% select(doi, journal_name, publisher), by = c("article" = "doi")) %>%
-  left_join(unpaywall_fo_r_join %>% select(doi, fo_r), by = c("article" = "doi"))
+  left_join(unpaywall_fo_r_join %>% select(doi, fo_r), by = c("article" = "doi")) %>%
+  relocate(journal_name_unpaywall = journal_name, .after = article) %>%
+  relocate(publisher_unpaywall = publisher, .after = journal_name_unpaywall) %>%
+  relocate(fields_of_research = fo_r, .after = publisher_unpaywall) %>%
+  relocate(guid_scheme_fuji = guid_scheme, .after = repository_type) %>%
+  relocate(license_fuji = license, .after = guid_scheme_fuji) %>%
+  rename(guid_fuji = guid)
 
 
 # Join with long dataframe
@@ -190,65 +196,55 @@ repository_info2 <- repository_info %>% separate_rows(policyName, policyURL, sep
 
 rdata <- charite_rd_2020_clean %>%
   select(article, best_identifier, repository) %>%
-  mutate_all(str_to_lower) %>%
   mutate(repository = removePunctuation(repository)) %>%
   mutate(repository = removeWords(repository, stopwords("english"))) %>%
   mutate(repository = str_replace_all(repository, pattern = " ", repl = ""))
 
 rep <- repository_info %>%
+  mutate(repository_name_long = repositoryName) %>%
 #  select(1:5) %>%
   separate_rows(additionalName, sep = "_AND_") %>%
   pivot_longer(cols = c("repositoryName", "additionalName"), values_to = "repository", values_drop_na = TRUE) %>%
-  mutate_all(str_to_lower) %>%
   select(-name) %>%
   mutate_all(na_if, "") %>%
-  mutate(repository = removePunctuation(repository)) %>%
-  mutate(repository = removeWords(repository, stopwords("english"))) %>%
-  mutate(repository = str_replace_all(repository, pattern = " ", repl = "")) %>%
+  mutate(repository = str_to_lower(repository),
+         repository = removePunctuation(repository),
+         repository = removeWords(repository, stopwords("english")),
+         repository = str_replace_all(repository, pattern = " ", repl = "")) %>%
   clean_names()
 
 
 r3data_join <- rdata %>% left_join(rep, by = "repository", keep = TRUE) %>%
-  select(-repository_url, -repository_identifier) %>%
+  select(-article, -repository_url, -repository_identifier) %>%
  # distinct(repository.x, .keep_all = TRUE) %>%
-  distinct(article, best_identifier, .keep_all = TRUE) %>%
-  relocate(repository.y, .after = repository.x) %>%
-  mutate(is_re3data = case_when(is.na(re3data_org_identifier) ~ FALSE,
-                              TRUE ~ TRUE))
+  distinct(best_identifier, .keep_all = TRUE) %>%
+  relocate(repository.y, .after = repository.x)
 
 charite_rd_2020_join_3 <- charite_rd_2020_join_2 %>% 
-  left_join(r3data_join, by = c("best_identifier"))
+  left_join(r3data_join, by = c("best_identifier")) %>%
+  select(-repository.x, - repository.y) %>%
+  relocate(repository_re3data = repository_name_long, .after = repository) %>%
+  mutate(repository_re3data = case_when(is.na(repository_re3data) ~ repository,
+                                        TRUE ~ repository_re3data)) %>%
+  relocate(repository_type_re3data = type, .after = repository_type) %>%
+  relocate(subject_re3data = subject, .after = repository_type_re3data) %>%
+  relocate(keyword_re3data = keyword, .after = subject_re3data) %>%
+  relocate(re3data_org_identifier, .after = repository_type_re3data)
 
-path = "output/output.xlsx"
-
-save_data <- function(path, ) {
-  wb <- createWorkbook()
-  addWorksheet(wb, "all_ids")
-  writeData(wb, "all_ids", charite_rd_2020_join_3, keepNA = TRUE)
-  saveWorkbook(wb, path, overwrite = TRUE)
-}
-
-save_data(path)
-
-save_data <- function(path, worksheet, df) {
-  wb <- createWorkbook()
-  addWorksheet(wb, worksheet)
-  writeData(wb, worksheet, df, keepNA = TRUE)
-  saveWorkbook(wb, path, overwrite = TRUE)
-}
+save_data_xlsx(df = list(charite_rd_2020_join_3), name = "final_output_2020")
 
 data_policy_2020 <- charite_rd_2020_join_3 %>%
-  group_by(repository.x, repository_type, policy_name, policy_url, data_license_name) %>%
+  group_by(repository_re3data, repository_type, policy_name, policy_url, data_license_name) %>%
   summarise(count = n ()) %>%
   arrange(desc(count))
 
-save_data(path = "output/data_policy_2020.xlsx", worksheet = "data_policy_2020", df = data_policy_2020)
+save_data_xlsx(df = list(data_policy_2020), name = "data_policy_2020")
 
 classification_2020 <- charite_rd_2020_join_3 %>%
-  group_by(repository.x, repository_type, type, subject, keyword) %>%
+  group_by(repository_re3data, repository_type, repository_type_re3data, subject_re3data, keyword_re3data) %>%
   summarise(count = n ()) %>%
   arrange(desc(count))
 
-save_data(path = "output/classification_2020.xlsx", worksheet = "classification_2020", df = classification_2020)
+save_data_xlsx(df = list(classification_2020), name = "classification_2020")
 
 
