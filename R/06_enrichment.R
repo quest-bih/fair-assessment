@@ -231,7 +231,11 @@ charite_rd_2020_join_3 <- charite_rd_2020_join_2 %>%
   relocate(keyword_re3data = keyword, .after = subject_re3data) %>%
   relocate(re3data_org_identifier, .after = repository_type_re3data)
 
-save_data_xlsx(df = list(charite_rd_2020_join_3), name = "final_output_2020")
+charite_rd_2020_final <- charite_rd_2020_join_3
+
+save(charite_rd_2020_final, file = "output-Rdata/charite_rd_2020_final.Rdata")
+
+save_data_xlsx(df = list(charite_rd_2020_final), name = "final_output_2020")
 
 data_policy_2020 <- charite_rd_2020_join_3 %>%
   group_by(repository_re3data, repository_type, policy_name, policy_url, data_license_name) %>%

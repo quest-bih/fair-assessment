@@ -10,25 +10,27 @@
 cat("\014") # Clear your console
 rm(list = ls()) # Clear your environment
 
+library(plotly)
 library(tidyverse)
 
-load("output-Rdata/charite_rd_2020_join.Rdata")
 
-data <- charite_rd_2020_join
+load("output-Rdata/charite_rd_2020_final.Rdata")
+
+data <- charite_rd_2020_final
 
 data %>%
   filter(repository_type == "general-purpose repository") %>%
-  ggplot(aes(license)) +
+  ggplot(aes(license_fuji)) +
   geom_bar()
 
 data %>%
   filter(repository_type == "field-specific repository") %>%
-  ggplot(aes(license)) +
+  ggplot(aes(license_fuji)) +
   geom_bar()
 
 chart_bar_license <- data %>%
  # filter(!is.na(repository_type)) %>%
-  ggplot(aes(license, fill = repository_type)) +
+  ggplot(aes(license_fuji, fill = repository_type)) +
   geom_bar(aes(y = (..count..)/sum(..count..))) +
 #  facet_wrap( ~ repository_type) +
   theme_minimal() +
@@ -143,7 +145,7 @@ data %>%
 
 
 data_2 <- data %>%
-  select(best_identifier, repository_type, guid_scheme, fuji_percent_f, fuji_percent_a, fuji_percent_i, fuji_percent_r) %>%
+  select(best_identifier, repository_type, guid_scheme_fuji, fuji_percent_f, fuji_percent_a, fuji_percent_i, fuji_percent_r) %>%
   pivot_longer(cols = starts_with("fuji_percent")) %>%
   mutate(name = case_when(name == "fuji_percent_f" ~ "F",
                           name == "fuji_percent_a" ~ "A",
@@ -160,7 +162,7 @@ chart_violin_repository <- data_2 %>%
  # geom_boxplot() +
   geom_violin(trim = TRUE, scale = "width") +
   
-  geom_jitter(aes(color = guid_scheme), height = 1, width = 0.3, size = 0.5, shape = 1) +
+  geom_jitter(aes(color = guid_scheme_fuji), height = 1, width = 0.3, size = 0.5, shape = 1) +
   stat_summary(fun = mean, geom = "point", size = 2,color = "red") +
   facet_wrap(~ repository_type) +
   theme_minimal() +
@@ -228,4 +230,85 @@ data_2 %>%
         axis.title.y = element_blank()) +
   scale_y_continuous(labels = scales::dollar_format(suffix = "%", prefix = ""))
 
+fig <- data_2 %>%
+  plot_ly(
+    x = ~name,
+    y = ~value,
+    split = ~name,
+    type = 'violin',
+    bandwidth = 0,
+    box = list(
+      visible = FALSE
+    ),
+    meanline = list(
+      visible = T
+    )
+  ) 
 
+fig
+
+fig <- data_2 %>%
+  plot_ly(type = 'violin') 
+fig <- fig %>%
+  add_trace(
+    x = ~name[data_2$repository_type == 'field-specific repository'],
+    y = ~value[data_2$repository_type == 'field-specific repository'],
+    legendgroup = 'Yes',
+    scalegroup = 'Yes',
+    name = 'field',
+    side = 'negative',
+    box = list(
+      visible = T
+    ),
+    meanline = list(
+      visible = T
+    ),
+    color = I("blue")
+  ) 
+fig <- fig %>%
+  add_trace(
+    x = ~name[data_2$repository_type == 'general-purpose repository'],
+    y = ~value[data_2$repository_type == 'general-purpose repository'],
+    legendgroup = 'No',
+    scalegroup = 'No',
+    name = 'general',
+    side = 'positive',
+    box = list(
+      visible = T
+    ),
+    meanline = list(
+      visible = T
+    ),
+    color = I("green")
+  ) 
+
+fig <- fig %>%
+  layout(
+    xaxis = list(
+      title = ""  
+    ),
+    yaxis = list(
+      title = "",
+      zeroline = F
+    ),
+    violingap = 0,
+    violingroupgap = 0,
+    violinmode = 'overlay'
+  )
+
+fig
+
+data %>%
+  mutate(publisher_unpaywall = as.factor(publisher_unpaywall)) %>%
+  group_by(publisher_unpaywall) %>%
+  filter(n() >= 5) %>%
+ggplot(aes(publisher_unpaywall, fill = journal_name_unpaywall)) +
+  geom_bar() +
+  coord_flip()
+
+data %>%
+  group_by(journal_name_unpaywall) %>%
+  filter(n() >= 5) %>%
+  ggplot(aes(journal_name_unpaywall, fill = publisher_unpaywall)) +
+  geom_bar() +
+  coord_flip()
