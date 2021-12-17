@@ -229,7 +229,8 @@ charite_rd_2020_join_3 <- charite_rd_2020_join_2 %>%
   relocate(repository_type_re3data = type, .after = repository_type) %>%
   relocate(subject_re3data = subject, .after = repository_type_re3data) %>%
   relocate(keyword_re3data = keyword, .after = subject_re3data) %>%
-  relocate(re3data_org_identifier, .after = repository_type_re3data)
+  relocate(re3data_org_identifier, .after = repository_type_re3data) %>%
+  relocate(license_fair_enough, .after = license_fuji)
 
 charite_rd_2020_final <- charite_rd_2020_join_3
 
@@ -251,4 +252,12 @@ classification_2020 <- charite_rd_2020_join_3 %>%
 
 save_data_xlsx(df = list(classification_2020), name = "classification_2020")
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Save license data to xlsx ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+charite_rd_2020_license <- charite_rd_2020_final %>%
+  select(article, best_identifier, guid_fuji, repository_re3data, repository_type, data_license_name, license_fuji, license_fair_enough) %>%
+  arrange(desc(repository_type), repository_re3data)
+
+save_data_xlsx(df = list(charite_rd_2020_license), name = "licenses_2020")

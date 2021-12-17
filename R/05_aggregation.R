@@ -79,7 +79,8 @@ fuji_license <-
   mutate(
     license_2 = case_when(
       str_detect(license, "by\\/4\\.0|cc-by") ~ "CC-BY",
-      str_detect(license, "cc0|public domain") ~ "CC0",
+      str_detect(license, "public domain") ~ "Public Domain",
+      str_detect(license, "cc0") ~ "CC0",
       str_detect(license, "by-nc-sa\\/") ~ "CC-BY-NC-SA",
       str_detect(license, "by-nc\\/") ~ "CC-BY-NC",
       is.na(license) ~ "no license",
@@ -89,6 +90,7 @@ fuji_license <-
   mutate(license_2 = factor(
     license_2,
     levels = c(
+      "Public Domain",
       "CC0",
       "CC-BY",
       "CC-BY-NC",
@@ -99,8 +101,7 @@ fuji_license <-
   ))
 
 fuji_license <- fuji_license %>%
-  select(rd_id, license = license_2) %>%
-  mutate(license = str_to_lower(license))
+  select(rd_id, license = license_2)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Extract guid_scheme ----
@@ -129,6 +130,37 @@ fair_enough_summary <- map_dfr(
   select(guid, fair_enough_percent = percent) %>%
   left_join(fuji_guid, by = "guid")
 
+
+fair_enough_license <- map_dfr(
+  seq_along(fair_enough_list),
+  ~ bind_cols(fair_enough_list[[.x]][["results"]][[8]][["logs"]]) %>%
+    mutate(guid = fair_enough_list[[.x]][["resource_uri"]], .before = `...1`) %>%
+    mutate(score = fair_enough_list[[.x]][["results"]][[8]][["score"]], .after = guid)
+  ) %>% filter(score == 1)
+
+fair_enough_license <- fair_enough_license %>%
+  unite(license, matches("\\d+$"), sep = "_", remove = TRUE, na.rm = TRUE) %>%
+  mutate(license = case_when(
+    str_detect(license, "by\\/4\\.0|cc-by") ~ "CC-BY",
+    str_detect(license, "cc0") ~ "CC0",
+    str_detect(license, "public?domain") ~ "Public Domain",
+    str_detect(license, "by-nc-sa\\/") ~ "CC-BY-NC-SA",
+    str_detect(license, "by-nc\\/") ~ "CC-BY-NC",
+    str_detect(license, "by-nc-nd\\/") ~ "CC-BY-NC-ND",
+    str_detect(license, "by-sa\\/") ~ "CC-BY-SA",
+    TRUE ~ "other license")) %>%
+  rename(license_fair_enough = license) %>%
+  select(-score)
+    
+
+fair_enough_summary <- fair_enough_summary %>% left_join(fair_enough_license, by = "guid") %>%
+  mutate(license_fair_enough = replace_na(license_fair_enough, "no license"))
+  
+                                
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Join FUJI and FAIR Enough data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 fuji_fair_enough_summary_results <-
   fuji_summary_results_all %>% full_join(fair_enough_summary, by = "rd_id") %>%
   select(-id)
@@ -148,16 +180,6 @@ charite_rd_2020_join <- charite_rd_2020_clean %>%
   
 save(charite_rd_2020_join, file = "output-Rdata/charite_rd_2020_join.Rdata")
 load("output-Rdata/charite_rd_2020_join.Rdata")
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Save license data to xlsx ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-charite_rd_2020_license <- charite_rd_2020_join %>%
-  select(article, best_identifier, repository, repository_type, license) %>%
-  arrange(desc(repository_type), repository)
-
-save_data_xlsx(df = list(charite_rd_2020_license), name = "licenses_2020")
 
 
 results_long <-
