@@ -18,6 +18,40 @@ load("output-Rdata/charite_rd_2020_final.Rdata")
 
 data <- charite_rd_2020_final
 
+
+data %>%
+  plot_ly(y = ~fuji_percent, color = ~repository_type, type = 'violin')
+
+
+sub1 <- data %>%
+  group_by(repository_type, license_fuji) %>%
+  summarise(count = n()) %>%
+  mutate(has_license = case_when(license_fuji == "no license" ~ "no license",
+                                 TRUE ~ "has license")) %>%
+  filter(repository_type == "general-purpose repository") %>%
+  plot_ly(x = ~has_license, y = ~count, color = ~license_fuji, type = 'bar',
+          showlegend = FALSE, legendgroup = ~license_fuji) %>%
+  layout(barmode = 'stack') %>% 
+  layout(xaxis = list(title = "general_purpose"))
+
+sub2 <- data %>%
+  group_by(repository_type, license_fuji) %>%
+  summarise(count = n()) %>%
+  mutate(has_license = case_when(license_fuji == "no license" ~ "no license",
+                                 TRUE ~ "has license")) %>%
+  filter(repository_type == "field-specific repository") %>%
+  plot_ly(x = ~has_license, y = ~count, color = ~license_fuji, type = 'bar',
+          showlegend = TRUE, legendgroup = ~license_fuji) %>%
+  layout(barmode = 'stack') %>% 
+  layout(xaxis = list(title = "field-specific"))
+
+p <- subplot(sub1, sub2, titleX = TRUE, shareY = TRUE) %>% layout(showlegend = TRUE) %>% plotly_build()
+
+
+saveRDS(p, "output-charts/license_bar.rds")
+d <- readRDS("output-charts/license_bar.rds")
+
+
 data %>%
   filter(repository_type == "general-purpose repository") %>%
   ggplot(aes(license_fuji)) +
