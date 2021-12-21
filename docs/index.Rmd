@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(plotly)
+
 ```
 
 ## R Markdown
@@ -24,7 +26,22 @@ summary(cars)
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+
+#p <- readRDS("output-charts/license_bar.rds")
+
+# p
+
+
+df1 = read.csv('https://raw.githubusercontent.com/plotly/datasets/718417069ead87650b90472464c7565dc8c2cb1c/sunburst-coffee-flavors-complete.csv')
+
+
+fig <- plot_ly(
+  type='treemap',
+  ids=df1$ids,
+  labels=df1$labels,
+  parents=df1$parents
+  )
+
+partial_bundle(fig)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
