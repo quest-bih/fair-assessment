@@ -281,4 +281,4 @@ licenses_2020 <- licenses_2020 %>%
   left_join(licenses_AI, by = c("article", "best_identifier"))
 
 # Save data to output folder
-save_data_xlsx(df = list(licenses_2020), name = "licenses_2020_processes_AI2")
+save_data_xlsx(df = list(licenses_2020), name = "licenses_2020_processed_AI")

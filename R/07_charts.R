@@ -158,7 +158,6 @@ test %>%
   layout(barmode = "stack") %>% layout(showlegend = FALSE)
 
 
-
 test <- data %>%
   group_by(fields_of_research, repository_re3data) %>%
   summarise(n = n()) %>%
@@ -169,11 +168,38 @@ test %>%
   add_bars(y = ~fields_of_research, x = ~n, color = ~repository_re3data) %>%
   layout(barmode = "stack") %>% layout(showlegend = FALSE)
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly Treemap ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 test <- data %>%
-  group_by(fields_of_research) %>%
-  summarise(n = n()) %>%
-  ungroup()
+  count(repository_re3data, repository_type)
+
+test <- rbind(NA, test)
+test <- rbind(NA, test)
+test[[1]][[1]] <- "field-specific repository"
+test[[1]][[2]] <- "general-purpose repository"
+
+test[[3]][[1]] <- 221
+test[[3]][[2]] <- 82
+
+fig <- plot_ly(
+  labels = test$repository_re3data,
+  parents = test$repository_type,
+  values = test$n,
+  type ="treemap",
+  branchvalues = 'total'
+)
+fig
+
+sum(test$n)
+
+
+df1 = read.csv('https://raw.githubusercontent.com/plotly/datasets/718417069ead87650b90472464c7565dc8c2cb1c/sunburst-coffee-flavors-complete.csv')
+
+
+
+
 
 data %>%
   filter(repository_type == "general-purpose repository") %>%
