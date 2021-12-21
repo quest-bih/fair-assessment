@@ -20,7 +20,7 @@ load("output-Rdata/charite_rd_2020_final.Rdata")
 data <- charite_rd_2020_final
 
 
-data %>%
+fig <- data %>%
   plot_ly(y = ~fuji_percent, color = ~repository_type, type = 'violin')
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -191,12 +191,10 @@ fig <- plot_ly(
 )
 fig %>% layout(title = "Treemap Repositories")
 
-partial_bundle(fig)
-
-saveWidget(fig, "output-charts/p1.html", selfcontained = TRUE)
-
+partial_bundle(fig) %>% saveWidget( "output-charts/p1.html", selfcontained = TRUE)
+saveWidget(fig, "output-charts/p1.html", selfcontained = FALSE, libdir = "lib")
 library(htmlwidgets)
-
+fig
 
 
 sum(test$n)
