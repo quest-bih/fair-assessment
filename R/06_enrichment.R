@@ -261,3 +261,24 @@ charite_rd_2020_license <- charite_rd_2020_final %>%
   arrange(desc(repository_type), repository_re3data)
 
 save_data_xlsx(df = list(charite_rd_2020_license), name = "licenses_2020")
+licenses_2020 <- read_excel("output/licenses_2020.xlsx")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load data from AI and enrich is ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# Read processed data
+path <- "output/licenses_2020_processed_AI.xlsx"  
+licenses_AI <- read_excel(path = path) 
+licenses_AI <- licenses_AI %>%
+  select(article, best_identifier, agreement, comment)
+
+# Read license data
+licenses_2020 <- read_excel("output/licenses_2020.xlsx") 
+
+# Join license data with processed data
+licenses_2020 <- licenses_2020 %>%
+  left_join(licenses_AI, by = c("article", "best_identifier"))
+
+# Save data to output folder
+save_data_xlsx(df = list(licenses_2020), name = "licenses_2020_processes_AI2")

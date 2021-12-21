@@ -10,6 +10,7 @@
 cat("\014") # Clear your console
 rm(list = ls()) # Clear your environment
 
+library(crosstalk)
 library(plotly)
 library(tidyverse)
 
@@ -22,6 +23,9 @@ data <- charite_rd_2020_final
 data %>%
   plot_ly(y = ~fuji_percent, color = ~repository_type, type = 'violin')
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly licenses ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 sub1 <- data %>%
   group_by(repository_type, license_fuji) %>%
@@ -47,10 +51,129 @@ sub2 <- data %>%
 
 p <- subplot(sub1, sub2, titleX = TRUE, shareY = TRUE) %>% layout(showlegend = TRUE) %>% plotly_build()
 
-
+# Save and load plot
 saveRDS(p, "output-charts/license_bar.rds")
 d <- readRDS("output-charts/license_bar.rds")
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly linked licenses ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+shared_repo <- data %>% SharedData$new(key = ~repository_type)
+
+bc <- shared_repo %>%
+  plot_ly() %>%
+  group_by(repository_type) %>%
+  summarise(n = n()) %>%
+  add_bars(x = ~repository_type, y = ~n) %>%
+  layout(barmode = "overlay")
+
+bubble <- shared_repo %>%
+  plot_ly() %>%
+  group_by(license_fuji) %>%
+  summarise(n = n()) %>%
+  add_bars(x = ~license_fuji, y = ~n, hoverinfo = "text", text = ~license_fuji) %>%
+  layout(barmode = "overlay")
+
+subplot(bc, bubble)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly FUJI v FAIR Enough ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+shared_repo <- data %>% SharedData$new(key = ~repository_type)
+
+bc <- shared_repo %>%
+  plot_ly() %>%
+  group_by(repository_type) %>%
+  summarise(n = n()) %>%
+  add_bars(y = ~repository_type, x = ~n,
+           text = ~repository_type, textposition = 'inside', size = 3,
+           marker = list(color = c("blue", "gray"))) %>%
+  layout(barmode = "overlay", yaxis = list(showticklabels = FALSE)) %>%
+  layout(xaxis = list(title = "Number datasets"),
+         yaxis = list(title = ""))
+
+bubble <- shared_repo %>%
+  plot_ly() %>%
+  group_by(repository_re3data, repository_type) %>%
+  summarise(n = n(), fair_enough = mean(fair_enough_percent), fuji = mean(fuji_percent)) %>%
+  add_markers(x = ~fuji, y = ~fair_enough, color = ~repository_type, colors = c("blue", "gray"),
+              hoverinfo = "text", text = ~repository_re3data,
+              hovertemplate = paste(
+                "<b>%{text}</b><br><br>",
+                "FUJI: %{x}<br>",
+                "FAIR Enough: %{y}<br>"),
+              size = ~n, marker = list(sizemode = "diameter")) %>%
+  layout(xaxis = list(title = "FUJI Score (%)"),
+         yaxis = list(title = "FAIR Enough Score (%)"))
+
+subplot(bubble, bc, nrows = 2, heights = c(0.8, 0.2), titleX = TRUE, titleY = TRUE) %>% hide_legend() %>%
+  layout(title = "FUJI vs FAIR Enough")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly Number of Datasets per Repository and FUJI Score Percent ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bc <- shared_repo %>%
+  plot_ly() %>%
+  group_by(repository_type) %>%
+  summarise(n = n()) %>%
+  add_bars(y = ~repository_type, x = ~n,
+           text = ~repository_type, textposition = 'inside', size = 3,
+           marker = list(color = c("blue", "gray"))) %>%
+  layout(barmode = "overlay", yaxis = list(showticklabels = FALSE)) 
+
+bubble <- shared_repo %>%
+  plot_ly() %>%
+  group_by(repository_re3data, repository_type) %>%
+  summarise(n = n(), mean = mean(fuji_percent)) %>%
+  add_markers(y = ~mean, x = ~n, color = ~repository_type, colors = c("blue", "gray"),
+              hoverinfo = "text", text = ~repository_re3data,
+              hovertemplate = paste(
+                "<b>%{text}</b><br><br>",
+                "Number: %{y}<br>",
+                "Mean FAIR in %: %{x}<br>"),
+              size = ~n, marker = list(sizemode = "diameter"))
+
+subplot(bc, bubble, nrows = 2, heights = c(0.2, 0.8)) %>% hide_legend()
+
+subplot(bubble, bc, nrows = 2, heights = c(0.8, 0.2)) %>% hide_legend()
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly Publisher v FUJI Percent ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data %>% count(publisher_unpaywall, journal_name_unpaywall)
+
+test <- data %>%
+  group_by(repository_type, publisher_unpaywall, journal_name_unpaywall) %>%
+  summarise(n = n(), fuji = mean(fuji_percent)) %>%
+  ungroup() %>%
+  mutate(publisher_unpaywall = fct_reorder(publisher_unpaywall, n, .fun = sum))
+
+test %>%
+  plot_ly() %>%
+  add_bars(y = ~publisher_unpaywall, x = ~n, color = ~journal_name_unpaywall) %>%
+  layout(barmode = "stack") %>% layout(showlegend = FALSE)
+
+
+
+test <- data %>%
+  group_by(fields_of_research, repository_re3data) %>%
+  summarise(n = n()) %>%
+  ungroup()
+
+test %>%
+  plot_ly() %>%
+  add_bars(y = ~fields_of_research, x = ~n, color = ~repository_re3data) %>%
+  layout(barmode = "stack") %>% layout(showlegend = FALSE)
+
+
+test <- data %>%
+  group_by(fields_of_research) %>%
+  summarise(n = n()) %>%
+  ungroup()
 
 data %>%
   filter(repository_type == "general-purpose repository") %>%
