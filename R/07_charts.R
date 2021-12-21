@@ -175,6 +175,57 @@ test %>%
 test <- data %>%
   count(repository_re3data, repository_type)
 
+test2 <- data.frame(repository_re3data = unique(test$repository_type),
+                    repository_type = NA,
+                    n = c(221, 82))
+
+test <- rbind(test2, test)
+
+fig <- plot_ly(
+  labels = test$repository_re3data,
+  parents = test$repository_type,
+  values = test$n,
+  type ="treemap",
+  branchvalues = 'total',
+  textinfo="label+value"
+)
+fig %>% layout(title = "Treemap Repositories")
+
+partial_bundle(fig)
+
+saveWidget(fig, "output-charts/p1.html", selfcontained = TRUE)
+
+library(htmlwidgets)
+
+
+
+sum(test$n)
+
+
+ids = c("field", "general", "GEO-Springer", "GEO-Elsevier", "Wiley", "PlosONE")
+labels = c("field", "general", "GEO", "GEO", "figshare", "figshare")
+parents = c("", "", "field-GEO", "field-GEO", "general", "general")
+values = c()
+
+fig <- plot_ly(
+  type='treemap',
+  ids=ids,
+  labels=labels,
+  parents=parents
+)
+
+fig
+
+
+test <- data %>%
+  count(publisher_unpaywall, journal_name_unpaywall)
+
+test2 <- data.frame(journal_name_unpaywall = unique(test$publisher_unpaywall),
+                    publisher_unpaywall = NA,
+                    n = NA)
+
+test <- rbind(test2, test)
+
 test <- rbind(NA, test)
 test <- rbind(NA, test)
 test[[1]][[1]] <- "field-specific repository"
@@ -183,23 +234,66 @@ test[[1]][[2]] <- "general-purpose repository"
 test[[3]][[1]] <- 221
 test[[3]][[2]] <- 82
 
+
 fig <- plot_ly(
-  labels = test$repository_re3data,
-  parents = test$repository_type,
-  values = test$n,
-  type ="treemap",
-  branchvalues = 'total'
+  labels = test$journal_name_unpaywall,
+  parents = test$publisher_unpaywall,
+ # values = test$n,
+  type ="treemap"
 )
 fig
 
-sum(test$n)
-
 
 df1 = read.csv('https://raw.githubusercontent.com/plotly/datasets/718417069ead87650b90472464c7565dc8c2cb1c/sunburst-coffee-flavors-complete.csv')
+df2 = read.csv('https://raw.githubusercontent.com/plotly/datasets/718417069ead87650b90472464c7565dc8c2cb1c/coffee-flavors.csv')
+
+test <- data %>%
+  count(repository_re3data, publisher_unpaywall, repository_type)
+
+test <- rbind(NA, test)
+test <- rbind(NA, test)
+test[[1]][[1]] <- "field-specific repository"
+test[[1]][[2]] <- "general-purpose repository"
+test[[2]][[1]] <- "field-specific repository"
+test[[2]][[2]] <- "general-purpose repository"
+
+test[[4]][[1]] <- 221
+test[[4]][[2]] <- 82
+
+fig <- plot_ly(
+  ids = test$publisher_unpaywall,
+  labels = test$repository_re3data,
+  parents = test$repository_type,
+ # values = test$n,
+  type ="treemap",
+ # branchvalues = 'total',
+  domain=list(column=0)
+)
+fig
 
 
 
+fig <- plot_ly(
+  type='treemap',
+  ids=df1$ids,
+  labels=df1$labels,
+  parents=df1$parents
+  )
 
+fig
+
+
+
+df2 <- df2 %>% filter_all(any_vars(str_detect(.,"Carbony")))
+
+
+fig <- fig %>% add_trace(
+  type='treemap',
+  ids=df2$ids,
+  labels=df2$labels,
+  parents=df2$parents,
+  maxdepth=4)
+fig
 
 data %>%
   filter(repository_type == "general-purpose repository") %>%
