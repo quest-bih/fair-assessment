@@ -21,5 +21,7 @@ Die Seiten von Datensätzen werden auf MIME TYPE geprüft, um die Key-Values zu 
 Deshalb wird es nicht immer über 'Export in DC/Datacite' auffindbar, aber die FAIR-Tools finden es.
 
 z.B. Dryad-Seiten haben den Type JSON-LD (<script type="application/ld+json">), dass problemlos von FAIR-Enough gefunden wird.
+Ausnahmen:
+2. Figshare ohne DOI: MIME-Type akzeptabel, aber keine Auffinbarkeit - **warum**?
 
-2. Figshare ohne DOI: MIME-Type akzeptabel, aber keine Auffinbarkeit -warum?
+3. Harvard (Zeile 47): in JSON-LD Lizenz Information vorhanden, FAIR-Enough findet es, aber die Entscheidung ist "Could not find license information in metadata" - **warum**?
