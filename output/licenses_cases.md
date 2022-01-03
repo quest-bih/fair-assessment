@@ -33,6 +33,8 @@ Leider bedeutet es nicht, dass die Tools alles finden, was Menschen finden - sie
 1. Figshare (Zeile 4) ohne DOI: MIME-Type akzeptabel, aber keine Auffinbarkeit - **warum**?
 
 2. Harvard (Zeile 47): in JSON-LD Lizenz Information vorhanden, FAIR-Enough findet es, aber die Entscheidung ist "Could not find license information in metadata" - **warum**?
+  
+3. Mendeley (Zeile 48): FUJI richtig, FAIR-Enough falsch - in Evaluation output gibt es 'json-ld' mit der Lizenz - warum nicht gefunden?
 
 3. OSF (Zeile 55): FAIR-Enough und FUJI keine Übereinstimmung -> FAIR-Enough ist hier schlechter
   
