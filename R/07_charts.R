@@ -506,12 +506,17 @@ data_2 %>%
   scale_y_continuous(labels = scales::dollar_format(suffix = "%", prefix = ""))
 
 fig <- data_2 %>%
+  filter(repository_type == "general-purpose repository") %>%
   plot_ly(
     x = ~name,
     y = ~value,
     split = ~name,
-    type = 'violin',
-    bandwidth = 0,
+ #   color = ~repository_type,
+    type = 'box',
+   # boxpoints = "all", 
+    #jitter = 1,
+    #pointpos = 0,
+   # bandwidth = 0,
     box = list(
       visible = FALSE
     ),
