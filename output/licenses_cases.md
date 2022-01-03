@@ -16,7 +16,7 @@ Metadata haben: codeocean, openneuro
 
 ## 27.12.2021
 
-Generell nicht klar, wie 'data_license_name' zustande kommt, weil es oft einen Lizenznamen hat, der nicht zustimmt.
+Generell nicht klar, wie 'data_license_name' zustande kommt, weil es oft einen Lizenznamen hat, der nicht zustimmt -> kommt es aus re3data, dann bezieht es sich sehr wahrscheinlich auf Lizensierung der ganzen Datenbank, aber nicht des jeweiligen untersuchten Datensatzes.
 
 Genutzte Spezifikationen/Empfehlungen: RDFa, Opengraph, Microdata, Durlin Core, JSON-LD, 'identifier_in_matadata'
 
@@ -28,7 +28,7 @@ z.B. Dryad-Seiten haben den Type JSON-LD (<script type="application/ld+json">), 
   
 Leider bedeutet es nicht, dass die Tools alles finden, was Menschen finden - sie sind noch recht schlecht mit dem Scannen von separaten Metadaten-Dateien (siehe 4, 6).
  
-Ausnahmen:
+### Ausnahmen:
 
 1. Figshare (Zeile 4) ohne DOI: MIME-Type akzeptabel, aber keine Auffinbarkeit - **warum**?
 
