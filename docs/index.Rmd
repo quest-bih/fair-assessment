@@ -1,46 +1,72 @@
 ---
-title: "Plotly"
-author: "Jan Taubitz"
-date: "12/21/2021"
+title: "FAIR Assessment Visualizations"
+author: "jan.taubitz@charite.de"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(plotly)
+knitr::opts_chunk$set(echo = FALSE)
+source("R/07_b_charts.R")
+```
+
+## Interactive visualizations with plotly
+### Completeness FAIR by repository type
+```{r}
+
+#box_1 <- readRDS("output-charts/box_1.rds")
+# load("output-charts/box_1.Rdata")
+# 
+# partial_bundle(box_1)
+
+box_1
+```
+
+
+
+### Licenses by repository type
+```{r}
+# licenses_linked <- readRDS("output-charts/licenses_linked.rds")
+# partial_bundle(licenses_linked)
+# 
+# p <- readRDS("output-charts/license_bar.rds")
+# partial_bundle(p)
+
+p
+licenses_linked
+
 
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+### Completeness FAIR by FUJI and Fair Enough
+```{r}
+scatter_fuji_fair
+#scatter_fuji_type
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-
-p <- readRDS("output-charts/license_bar.rds")
-
-partial_bundle(p)
-
-df1 = read.csv('https://raw.githubusercontent.com/plotly/datasets/718417069ead87650b90472464c7565dc8c2cb1c/sunburst-coffee-flavors-complete.csv')
+```{r}
 
 
-fig <- plot_ly(
-  type='treemap',
-  ids=df1$ids,
-  labels=df1$labels,
-  parents=df1$parents
-  )
+# df1 = read.csv('https://raw.githubusercontent.com/plotly/datasets/718417069ead87650b90472464c7565dc8c2cb1c/sunburst-coffee-flavors-complete.csv')
+# 
+# 
+# fig <- plot_ly(
+#   type='treemap',
+#   ids=df1$ids,
+#   labels=df1$labels,
+#   parents=df1$parents
+#   )
+# 
+# partial_bundle(fig)
+```
 
-partial_bundle(fig)
+## Static visualizations with ggplot
+
+```{r}
+chart_bar_license
+chart_bar_count
+chart_treemap_repository
+chart_violin_repository
 ```
 

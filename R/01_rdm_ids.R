@@ -26,7 +26,6 @@ charite_rd_2020 <- read_excel(path = path,
 # with the best IDs for querying assessment 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
 # Sort input and create a comma separated vector
 # dput(as.character(is_field_specific))
 # cat(paste(shQuote(is_field_specific, type="cmd"), collapse=", "))
@@ -89,6 +88,7 @@ charite_rd_2020_clean <- charite_rd_2020 %>%
          repository_type = open_data_category) %>%
   mutate(across(where(is.character), str_trim)) %>%
   mutate(across(c(article, starts_with("repository")), str_to_lower)) %>%
+  # Clean DOIs
   mutate(article = str_replace_all(article, "%28", "("), 
          article = str_replace_all(article, "%29", ")")) %>%
   # If applicable, use best_identifier

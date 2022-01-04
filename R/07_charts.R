@@ -23,6 +23,11 @@ data <- charite_rd_2020_final
 fig <- data %>%
   plot_ly(y = ~fuji_percent, color = ~repository_type, type = 'violin')
 
+data %>%
+  plot_ly(y = ~fuji_percent, color = ~repository_type) %>%
+  add_boxplot() %>%
+  hide_legend()
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly licenses ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -75,7 +80,13 @@ bubble <- shared_repo %>%
   add_bars(x = ~license_fuji, y = ~n, hoverinfo = "text", text = ~license_fuji) %>%
   layout(barmode = "overlay")
 
-subplot(bc, bubble)
+licenses_linked <- subplot(bc, bubble) %>% highlight(on = "plotly_click", off = "plotly_doubleclick") %>% hide_legend()
+
+saveRDS(licenses_linked, "output-charts/licenses_linked.rds")
+
+library(htmlwidgets)
+saveWidget(licenses_linked, "output-charts/licenses_linked.html", selfcontained = FALSE, libdir = "lib")
+
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly FUJI v FAIR Enough ----
@@ -578,6 +589,30 @@ fig <- fig %>%
 
 fig
 
+data_2 <- data_2 %>%
+  mutate(value = value/100)
+
+plot_1 <- data_2 %>%
+  filter(repository_type == "field-specific repository") %>%
+  plot_ly(x = ~name, y = ~value) %>%
+  add_boxplot(name = "field-specific rep.", boxmean = TRUE)
+
+plot_2 <- data_2 %>%
+  filter(repository_type == "general-purpose repository") %>%
+  plot_ly(x = ~name, y = ~value) %>%
+  add_boxplot(name = "general-purpose rep.", boxmean = TRUE) %>%
+  layout(title = "FAIRness")
+
+box_1 <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
+  layout(yaxis = list(tickformat = ",.0%", title = FALSE),
+         annotations = list(
+    list(x = 0.1 , y = 1, text = "field-specific repository", showarrow = F, xref='paper', yref='paper'),
+    list(x = 0.9 , y = 1, text = "general-purpose repository", showarrow = F, xref='paper', yref='paper')))
+
+saveRDS(box_1, "output-charts/box_1.rds")
+
+save(box_1, file = "output-charts/box_1.Rdata")
+
 data %>%
   mutate(publisher_unpaywall = as.factor(publisher_unpaywall)) %>%
   group_by(publisher_unpaywall) %>%
@@ -592,3 +627,4 @@ data %>%
   ggplot(aes(journal_name_unpaywall, fill = publisher_unpaywall)) +
   geom_bar() +
   coord_flip()
+
