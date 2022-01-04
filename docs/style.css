@@ -1,13 +1,11 @@
 
-
-
-.body {
-  background-color: #00000;
-  color: #0000;
+/*----------------NAVBAR ---------------*/
+/* Modify brand and text color */
+.navbar-default .navbar-brand,
+.navbar-default .navbar-text {
+    color: #ffffff;
 }
 
-
-/*----------------NAVBAR ---------------*/
 .navbar-default {
     background-color: #70acc0;
 }
@@ -34,20 +32,21 @@ a.dropdown-toggle:hover {
 .navbar-default .navbar-nav:hover, 
 .navbar-default .navbar-nav>li>a:hover, 
 a.navbar-brand:hover {
-  color: #ffffff !important;
-  background-color: #c12075;
+  color: #003754 !important;
+  background-color: #70acc0;
 }
 
 .nav.navbar-nav.navbar-right li a {
     color: white !important;
 }
 
+.nav.navbar-nav.navbar-right li a :hover{
+    color: #003754 !important;
+}
+
 .nav.navbar-nav li a{
     color: white !important;
 }
 
-/* Modify brand and text color */
-.navbar-custom .navbar-brand,
-.navbar-custom .navbar-text {
-    color: green;
-}
+a {color: #c12075;}
+a:hover {color: #003754;}
