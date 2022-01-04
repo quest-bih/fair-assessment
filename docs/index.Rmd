@@ -1,30 +1,72 @@
 ---
-title: "Test"
-author: "Jan Taubitz"
-date: "1/4/2022"
+title: "FAIR Assessment Visualizations"
+author: "contact: jan.taubitz@charite.de"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-#source("R/01_rdm_ids.R")
+knitr::opts_chunk$set(echo = FALSE)
+setwd("/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment")
+source("R/07_b_charts.R")
 ```
 
-## R Markdown
+## Interactive visualizations with plotly
+### Completeness FAIR by repository type
+```{r}
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+#box_1 <- readRDS("output-charts/box_1.rds")
+# load("output-charts/box_1.Rdata")
+# 
+# partial_bundle(box_1)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+partial_bundle(box_1)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+### Licenses by repository type
+```{r}
+# licenses_linked <- readRDS("output-charts/licenses_linked.rds")
+# partial_bundle(licenses_linked)
+# 
+# p <- readRDS("output-charts/license_bar.rds")
+# partial_bundle(p)
+
+p
+licenses_linked
+
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Completeness FAIR by FUJI and Fair Enough
+```{r}
+scatter_fuji_fair
+#scatter_fuji_type
+```
+
+
+```{r}
+
+
+# df1 = read.csv('https://raw.githubusercontent.com/plotly/datasets/718417069ead87650b90472464c7565dc8c2cb1c/sunburst-coffee-flavors-complete.csv')
+# 
+# 
+# fig <- plot_ly(
+#   type='treemap',
+#   ids=df1$ids,
+#   labels=df1$labels,
+#   parents=df1$parents
+#   )
+# 
+# partial_bundle(fig)
+```
+
+## Static visualizations with ggplot
+
+```{r}
+chart_bar_license
+chart_bar_count
+chart_treemap_repository
+chart_violin_repository
+```
+

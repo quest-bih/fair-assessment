@@ -1,0 +1,53 @@
+
+
+
+.body {
+  background-color: #00000;
+  color: #0000;
+}
+
+
+/*----------------NAVBAR ---------------*/
+.navbar-default {
+    background-color: #70acc0;
+}
+
+.navbar-default .navbar-nav>.open>a, 
+.navbar-default .navbar-nav>.active>a, 
+a.dropdown-toggle:hover {
+  background-color: #c12075 !important;
+}
+
+/* Dropdown menu color */
+.navbar-default .dropdown-menu {
+  background-color: #70acc0;
+}
+
+/* Dropdown menu hover color */
+  .navbar-default .dropdown-menu>li>a:hover {
+    background-color: #202831f2;
+  }
+
+/* Navbar Links when hovered*/
+.navbar-default .dropdown-menu>.active>a
+.navbar-default .navbar-nav>.active>a:hover, 
+.navbar-default .navbar-nav:hover, 
+.navbar-default .navbar-nav>li>a:hover, 
+a.navbar-brand:hover {
+  color: #ffffff !important;
+  background-color: #c12075;
+}
+
+.nav.navbar-nav.navbar-right li a {
+    color: white !important;
+}
+
+.nav.navbar-nav li a{
+    color: white !important;
+}
+
+/* Modify brand and text color */
+.navbar-custom .navbar-brand,
+.navbar-custom .navbar-text {
+    color: green;
+}

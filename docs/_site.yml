@@ -1,10 +1,17 @@
-name: my-website
+name: FAIR-visualizations
 output_dir: "."
 navbar:
-  title: My Website
+  title: FAIR Visualizations
   left:
   - text: Home
     href: index.html
+  - text: NCBI
+    href: ncbi.html
+  right:
+  - icon: fa-github fa-lg
+    href: https://github.com/quest-bih/fair-assessment
+  - icon: fa-university
+    href: https://www.bihealth.org/en/translation/innovation-enabler/quest-center/projects/quality/berlin-university-alliance-open-science-dashboards
 output:
   html_document:
-    theme: yeti
+    css: style.css
