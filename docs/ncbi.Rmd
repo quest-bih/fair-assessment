@@ -3,7 +3,22 @@ title: "NCBI"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+setwd("/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment")
+source("R/07_charts_ncbi.R")
 ```
 
+## Open Research Data by Charité scientists in 2020
+
+For 2020, `r length(unique(data$article))` research articles written by Charité scientists were identified that shared the underlying research data freely in a repository. Of these 300 articles, 200 used an NCBI repository to share their data.
+
+Bar Chart of Repositories
+
 ## NCBI
+
+Analysis of published research data included qualitative assessment of FAIR criteria using automated assessment tools. The analysis showed that the NCBI repositories do not meet the FAIR criteria. It can be stated that field-specific repositories, which include the NCBI repositories, generally achieve lower FAIR scores than general-purpose repositories. However, there are also field-specific repositories that achieve higher scores.
+
+```{r}
+box_ncbi
+```
+
