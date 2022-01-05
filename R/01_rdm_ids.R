@@ -129,7 +129,7 @@ save_data_xlsx <- function(df, name) {
 # save_data(df = list(charite_rd_2020_clean), name = c("input_clean"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Remove unused obejcts ----
+# Remove unused objects ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 rm(path, charite_rd_2020, is_field_specific, is_general_purpose)
