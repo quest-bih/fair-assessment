@@ -1,7 +1,7 @@
-name: FAIR-visualizations
+name: FAIR-assessment
 output_dir: "."
 navbar:
-  title: FAIR Visualizations
+  title: FAIR Assessment
   left:
   - text: Home
     href: index.html
