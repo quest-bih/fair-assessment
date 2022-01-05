@@ -19,12 +19,63 @@ load("output-Rdata/charite_rd_2020_final.Rdata")
 
 data <- charite_rd_2020_final
 
+data %>% filter(str_detect(best_identifier, "ncbi")) %>% distinct(article) %>% nrow()
+
 data_ncbi <- data %>%
   mutate(repository_ncbi = case_when(str_detect(best_identifier, "ncbi") ~ "ncbi repository",
                                      repository_type == "field-specific repository" ~ "other field-specific repository",
                                      TRUE ~ repository_type), .after = repository_type) 
 
 
+data_ncbi_rep <- data_ncbi %>%
+  filter(repository_re3data != "Open Science Framework" | repository_ncbi != "ncbi repository") %>%
+  group_by(repository_re3data, repository_ncbi) %>%
+  count() %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  mutate(repository_re3data = fct_reorder(repository_re3data,
+                               n, max, .desc = TRUE))
+
+
+data_ncbi_rep <- data_ncbi %>%
+  filter(repository_re3data != "Open Science Framework" | repository_ncbi != "ncbi repository") %>%
+  group_by(repository_re3data, repository_ncbi) %>%
+  mutate(repository_re3data = case_when(n() >= 3 ~ repository_re3data,
+                                        n() <= 2 & repository_ncbi == "other field-specific repository" ~ "other field-specific repository",
+                                        n() <= 2 & repository_ncbi == "general-purpose repository" ~ "other general-purpose repository",
+                                    TRUE ~ "other ncbi repository")) %>%
+  group_by(repository_re3data, repository_ncbi) %>%
+  summarise(n = n(), mean_fuji = mean(fuji_percent/100, na.rm = TRUE)) %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  mutate(repository_re3data = fct_reorder(repository_re3data,
+                                          n, max, .desc = TRUE)) %>%
+  mutate(repository_ncbi = factor(repository_ncbi, levels = c("ncbi repository", "general-purpose repository", "other field-specific repository")))
+
+
+pal <- c("#c12075", "#70acc0", "#b6d5e0") %>% setNames(c("ncbi repository", "general-purpose repository", "other field-specific repository"))
+
+bar_ncbi <- data_ncbi_rep %>%
+  plot_ly(x = ~n, y = ~repository_re3data, color = ~repository_ncbi,
+          colors = pal, text = ~n, textposition = 'inside', textangle = 0, textfont = list(color = "#ffffff"),
+          width = "100%", height = 650) %>% #, color = ~repository_ncbi
+  add_bars() %>%
+  layout(xaxis = list(autorange = "reversed", side = "top", title = FALSE),
+         yaxis = list(autorange = "reversed", side = "right", title = FALSE),
+         legend = list(x = 0.1, y = 0.5)) %>%
+  config(displayModeBar = FALSE)
+
+bar_ncbi_perc <- data_ncbi_rep %>%
+  plot_ly(x = ~mean_fuji, y = ~repository_re3data, color = ~repository_ncbi,
+          colors = pal, text = ~paste0(round(mean_fuji*100, 1), "%"), textposition = 'inside', textangle = 0, textfont = list(color = "#ffffff"),
+          width = "100%", height = 650) %>% #, color = ~repository_ncbi
+  add_bars() %>%
+  layout(xaxis = list(autorange = "reversed", side = "top", title = FALSE, tickformat = ",.0%"),
+         yaxis = list(autorange = "reversed", side = "right", title = FALSE),
+         legend = list(x = 0.1, y = 0.7)) %>%
+  config(displayModeBar = FALSE)
+
+bar_ncbi_perc
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly FAIR repo type ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -52,23 +103,23 @@ plot_2 <- data_ncbi_long %>%
   filter(repository_ncbi == "other field-specific repository") %>%
   plot_ly(x = ~name, y = ~value) %>%
   add_boxplot(name = "field-specific rep.", boxmean = TRUE,
-              color = list(color = "rgb(182,213,224)"),
-              marker = list(color = "rgb(182,213,224)"),
-              line = list(color = "rgb(182,213,224)"))
+              color = list(color = "#b6d5e0"),
+              marker = list(color = "#b6d5e0"),
+              line = list(color = "#b6d5e0"))
 
 plot_3 <- data_ncbi_long %>%
   filter(repository_ncbi == "general-purpose repository") %>%
   plot_ly(x = ~name, y = ~value) %>%
   add_boxplot(name = "general-purpose rep.", boxmean = TRUE, 
-              color = list(color = "rgb(182,213,224)"),
-              marker = list(color = 'rgb(182,213,224)'),
-              line = list(color = 'rgb(182,213,224)'))
+              color = list(color = "#70acc0"),
+              marker = list(color = '#70acc0'),
+              line = list(color = '#70acc0'))
 
 box_ncbi <- subplot(plot_1, plot_2, plot_3, shareY = TRUE) %>% hide_legend() %>%
   layout(yaxis = list(tickformat = ",.0%", title = FALSE),
          hovermode = "x",
          annotations = list(
-           list(x = 0.05 , y = 1, text = "<b>NCBI repository</b>", showarrow = F, xref='paper', yref='paper'),
-           list(x = 0.5 , y = 1, text = "<b>other field-specific rep.</b>", showarrow = F, xref='paper', yref='paper'),
-           list(x = 0.95 , y = 1, text = "<b>general-purpose rep.</b>", showarrow = F, xref='paper', yref='paper')))
+           list(x = 0.05 , y = 1.05, text = "<b>NCBI repository</b>", showarrow = F, xref='paper', yref='paper'),
+           list(x = 0.5 , y = 1.05, text = "<b>other field-specific rep.</b>", showarrow = F, xref='paper', yref='paper'),
+           list(x = 0.95 , y = 1.05, text = "<b>general-purpose rep.</b>", showarrow = F, xref='paper', yref='paper')))
 
