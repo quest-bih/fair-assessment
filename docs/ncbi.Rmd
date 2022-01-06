@@ -10,7 +10,7 @@ source("R/07_charts_ncbi.R")
 
 ## Open Research Data by Charité scientists in 2020
 
-For 2020, `r length(unique(data$article))` research articles written by Charité scientists were identified that shared the underlying research data freely in a data repository. Of these 300 articles, <mark style="background-color: #c1207533;">`r data %>% filter(str_detect(best_identifier, "ncbi")) %>% distinct(article) %>% nrow()` used one or more NCBI repositories</mark> to share their data. [Gene Expression Omnibus](https://www.ncbi.nlm.nih.gov/geo/) in particular is a frequently used repository by Charité scientists. 88 articles have shared their research data in this repository.
+For 2020, `r length(unique(data$article))` research articles written by Charité scientists were identified that shared the underlying research data freely in a data repository. Of these 300 articles, `r data %>% filter(str_detect(best_identifier, "ncbi")) %>% distinct(article) %>% nrow()` used one or more NCBI repositories to share their data. [Gene Expression Omnibus](https://www.ncbi.nlm.nih.gov/geo/) in particular is a frequently used repository by Charité scientists. 88 articles have shared their research data in this repository.
 
 ```{r}
 bar_ncbi
@@ -25,18 +25,29 @@ bar_ncbi
 
 ## NCBI repositories and completeness of FAIR criteria
 
-The analysis of published research data included a qualitative assessment of FAIR criteria completeness using automated assessment tools like [F-UJI](https://www.f-uji.net). The analysis demonstrated that <mark style="background-color: #c1207533;">the NCBI repositories do not meet the FAIR criteria. They achieve an overall score of 4.2%</mark> just by passing the test "Identifier is resolvable and follows a defined unique identifier syntax (IRI, URL)". All other FAIR tests failed.
-
-While field-specific repositories generally show a low completeness of FAIR criteria, there are examples that score better. (For example [the Electron Microscopy Data Bank](https://www.ebi.ac.uk/emdb/) or [CodeOcean](https://codeocean.com).)
-
+The analysis of published research data included an assessment of FAIR criteria completeness (FAIR score) using automated assessment tools like [F-UJI](https://www.f-uji.net). 
 
 ```{r}
 bar_ncbi_perc
 ```
 
-The last chart shows the FAIR scores broken down by the four main FAIR principles (Findable, Accessible, Interoperable, Reusable) and grouped by NCBI repositories, other field-specific repositories, and general-purpose repositories. It demonstrates that NCBI repositories only partly fulfill the Findable principle and completely fail on the other principles, whereas the general-purpose repositories on average also achieve high to medium scores on these principles.
+## FAIR principles
+
+The last chart shows the FAIR scores broken down by the four main FAIR principles (Findable, Accessible, Interoperable, Reusable) and grouped by NCBI repositories, other field-specific repositories, and general-purpose repositories.
 
 ```{r, out.width="100%"}
-box_ncbi
+bar_ncbi_fair
+```
+
+```{r}
+# Text Dump
+
+# For 2020, `r length(unique(data$article))` research articles written by Charité scientists were identified that shared the underlying research data freely in a data repository. Of these 300 articles, <mark style="background-color: #c1207533;">`r data %>% filter(str_detect(best_identifier, "ncbi")) %>% distinct(article) %>% nrow()` used one or more NCBI repositories</mark> to share their data. [Gene Expression Omnibus](https://www.ncbi.nlm.nih.gov/geo/) in particular is a frequently used repository by Charité scientists. 88 articles have shared their research data in this repository.
+
+# The analysis of published research data included a qualitative assessment of FAIR criteria completeness using automated assessment tools like [F-UJI](https://www.f-uji.net). The analysis demonstrated that <mark style="background-color: #c1207533;">the NCBI repositories do not meet the FAIR criteria. They achieve an overall score of 4.2%</mark> just by passing the test "Identifier is resolvable and follows a defined unique identifier syntax (IRI, URL)". All other FAIR tests failed.
+
+# While field-specific repositories generally show a low completeness of FAIR criteria, there are examples that score better. (For example [the Electron Microscopy Data Bank](https://www.ebi.ac.uk/emdb/) or [CodeOcean](https://codeocean.com).)
+
+# The last chart shows the FAIR scores broken down by the four main FAIR principles (Findable, Accessible, Interoperable, Reusable) and grouped by NCBI repositories, other field-specific repositories, and general-purpose repositories. It demonstrates that NCBI repositories only partly fulfill the Findable principle and completely fail on the other principles, whereas the general-purpose repositories on average also achieve high to medium scores on these principles.
 ```
 

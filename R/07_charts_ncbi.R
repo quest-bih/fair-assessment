@@ -50,10 +50,10 @@ data_ncbi_rep <- data_ncbi %>%
   arrange(desc(n)) %>%
   mutate(repository_re3data = fct_reorder(repository_re3data,
                                           n, max, .desc = TRUE)) %>%
-  mutate(repository_ncbi = factor(repository_ncbi, levels = c("ncbi repository", "general-purpose repository", "other field-specific repository")))
+  mutate(repository_ncbi = factor(repository_ncbi, levels = c("ncbi repository", "other field-specific repository", "general-purpose repository")))
 
 
-pal <- c("#c12075", "#70acc0", "#b6d5e0") %>% setNames(c("ncbi repository", "general-purpose repository", "other field-specific repository"))
+pal <- c("#c12075", "#b6d5e0", "#70acc0") %>% setNames(c("ncbi repository", "other field-specific repository", "general-purpose repository"))
 
 bar_ncbi <- data_ncbi_rep %>%
   plot_ly(x = ~n, y = ~repository_re3data, color = ~repository_ncbi,
@@ -123,3 +123,15 @@ box_ncbi <- subplot(plot_1, plot_2, plot_3, shareY = TRUE) %>% hide_legend() %>%
            list(x = 0.5 , y = 1.05, text = "<b>other field-specific rep.</b>", showarrow = F, xref='paper', yref='paper'),
            list(x = 0.95 , y = 1.05, text = "<b>general-purpose rep.</b>", showarrow = F, xref='paper', yref='paper')))
 
+data_ncbi_long_sum <- data_ncbi_long %>%
+  group_by(repository_ncbi, name) %>%
+  summarise(value = mean(value, na.rm = TRUE)) %>%
+  mutate(repository_ncbi = factor(repository_ncbi, levels = c("ncbi repository", "other field-specific repository", "general-purpose repository")))
+
+bar_ncbi_fair <- data_ncbi_long_sum %>%
+  group_by(repository_ncbi) %>%
+  do(p=plot_ly(., x = ~name, y = ~value, color = ~repository_ncbi, colors = pal, type = "bar",
+               text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
+       layout(yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%"))
+     ) %>%
+  subplot(nrows = 1, shareX = FALSE, shareY = TRUE) %>% layout(legend = list(orientation = "h"))

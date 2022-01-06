@@ -5,7 +5,7 @@ navbar:
   left:
   - text: Home
     href: index.html
-  - text: NCBI case study
+  - text: NCBI analysis
     href: ncbi.html
   right:
   - icon: fa-github fa-lg
