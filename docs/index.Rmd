@@ -20,6 +20,7 @@ source("R/07_b_charts.R")
 # partial_bundle(box_1)
 
 partial_bundle(box_1)
+partial_bundle(bar_1)
 ```
 
 

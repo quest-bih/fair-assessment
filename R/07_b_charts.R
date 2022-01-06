@@ -9,6 +9,67 @@ load("output-Rdata/charite_rd_2020_final.Rdata")
 data <- charite_rd_2020_final
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly FAIR repo type ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2 <- data %>%
+  select(best_identifier, repository_type, guid_scheme_fuji, fuji_percent_f, fuji_percent_a, fuji_percent_i, fuji_percent_r) %>%
+  pivot_longer(cols = starts_with("fuji_percent")) %>%
+  mutate(name = case_when(name == "fuji_percent_f" ~ "F",
+                          name == "fuji_percent_a" ~ "A",
+                          name == "fuji_percent_i" ~ "I",
+                          name == "fuji_percent_r" ~ "R"
+  )) %>%
+  mutate(name = factor(name, levels = c("F", "A", "I", "R"))) 
+
+data_2 <- data_2 %>%
+  mutate(value = value/100)
+
+plot_1 <- data_2 %>%
+  filter(repository_type == "field-specific repository") %>%
+  plot_ly(x = ~name, y = ~value) %>%
+  add_boxplot(name = "field-specific rep.", boxmean = TRUE,
+              color = list(color = "#634587"),
+              marker = list(color = "#634587"),
+              line = list(color = "#634587"))
+
+plot_2 <- data_2 %>%
+  filter(repository_type == "general-purpose repository") %>%
+  plot_ly(x = ~name, y = ~value, color = "green") %>%
+  add_boxplot(name = "general-purpose rep.", boxmean = TRUE,
+              color = list(color = "#F1BA50"),
+              marker = list(color = "#F1BA50"),
+              line = list(color = "#F1BA50")) %>%
+  layout(title = "Box Plot FAIRness by Repository Type")
+
+box_1 <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
+  layout(yaxis = list(tickformat = ",.0%", title = "FAIR Score according to F-UJI"),
+         annotations = list(
+           list(x = 0.1 , y = 1, text = "field-specific repository", showarrow = F, xref='paper', yref='paper'),
+           list(x = 0.9 , y = 1, text = "general-purpose repository", showarrow = F, xref='paper', yref='paper'))) %>%
+  config(displayModeBar = FALSE)
+
+box_1
+
+pal <- c("#634587", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
+
+data_2_sum <- data_2 %>%
+  group_by(repository_type, name) %>%
+  summarise(value = mean(value, na.rm = TRUE)) %>%
+  ungroup()
+
+bar_1 <- data_2_sum %>%
+  group_by(repository_type) %>%
+  group_map(~ plot_ly(., x = ~name, y = ~value, color = ~repository_type, colors = pal, type = "bar",
+                      text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
+              layout(yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%")),
+            .keep = TRUE) %>%
+  subplot(nrows = 1, shareX = FALSE, shareY = TRUE) %>% 
+  layout(title = "Bar Plot FAIRness by Repository Type",
+         legend = list(orientation = "h")) %>%
+  config(displayModeBar = FALSE)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly licenses ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -56,41 +117,10 @@ bubble <- shared_repo %>%
   add_bars(x = ~license_fuji, y = ~n, hoverinfo = "text", text = ~license_fuji) %>%
   layout(barmode = "overlay")
 
-licenses_linked <- subplot(bc, bubble) %>% highlight(on = "plotly_click", off = "plotly_doubleclick") %>% hide_legend()
+licenses_linked <- subplot(bc, bubble, widths = c(0.2, 0.8)) %>% highlight(on = "plotly_click", off = "plotly_doubleclick") %>% hide_legend()
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Plotly FAIR repo type ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_2 <- data %>%
-  select(best_identifier, repository_type, guid_scheme_fuji, fuji_percent_f, fuji_percent_a, fuji_percent_i, fuji_percent_r) %>%
-  pivot_longer(cols = starts_with("fuji_percent")) %>%
-  mutate(name = case_when(name == "fuji_percent_f" ~ "F",
-                          name == "fuji_percent_a" ~ "A",
-                          name == "fuji_percent_i" ~ "I",
-                          name == "fuji_percent_r" ~ "R"
-  )) %>%
-  mutate(name = factor(name, levels = c("F", "A", "I", "R"))) 
 
-data_2 <- data_2 %>%
-  mutate(value = value/100)
-
-plot_1 <- data_2 %>%
-  filter(repository_type == "field-specific repository") %>%
-  plot_ly(x = ~name, y = ~value) %>%
-  add_boxplot(name = "field-specific rep.", boxmean = TRUE)
-
-plot_2 <- data_2 %>%
-  filter(repository_type == "general-purpose repository") %>%
-  plot_ly(x = ~name, y = ~value) %>%
-  add_boxplot(name = "general-purpose rep.", boxmean = TRUE) %>%
-  layout(title = "FAIRness")
-
-box_1 <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
-  layout(yaxis = list(tickformat = ",.0%", title = FALSE),
-         annotations = list(
-           list(x = 0.1 , y = 1, text = "field-specific repository", showarrow = F, xref='paper', yref='paper'),
-           list(x = 0.9 , y = 1, text = "general-purpose repository", showarrow = F, xref='paper', yref='paper')))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly FUJI v FAIR Enough ----
