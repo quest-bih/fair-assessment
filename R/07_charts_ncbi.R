@@ -134,4 +134,6 @@ bar_ncbi_fair <- data_ncbi_long_sum %>%
                text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
        layout(yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%"))
      ) %>%
-  subplot(nrows = 1, shareX = FALSE, shareY = TRUE) %>% layout(legend = list(orientation = "h"))
+  subplot(nrows = 1, shareX = FALSE, shareY = TRUE) %>% 
+  layout(legend = list(orientation = "h")) %>%
+  config(displayModeBar = FALSE)
