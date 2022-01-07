@@ -75,7 +75,7 @@ data_2_sum <- data_2 %>%
   summarise(value = mean(value, na.rm = TRUE)) %>%
   ungroup()
 
-bar_grouped <- data_2_sum %>%
+bar_faceted <- data_2_sum %>%
   group_by(repository_type) %>%
   group_map(~ plot_ly(., x = ~name, y = ~value, color = ~repository_type, colors = pal, type = "bar",
                       text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
@@ -86,7 +86,7 @@ bar_grouped <- data_2_sum %>%
          legend = list(orientation = "h")) %>%
   config(displayModeBar = FALSE)
 
-bar_faceted <- data_2_sum %>%
+bar_grouped <- data_2_sum %>%
   plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
   add_bars(text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
   layout(barmode = "group",
@@ -138,6 +138,27 @@ violin <- data_3 %>%
 # Plotly licenses ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+data_license <- data %>%
+  group_by(license_fuji, repository_type) %>%
+  summarise(n = n()) %>%
+  ungroup() %>%
+  complete(license_fuji, repository_type, fill = list(n = 0)) %>%
+  mutate(perc = round(n/sum(n),3))
+
+
+licenses_bar_grouped <- data_license %>%
+  plot_ly(x = ~license_fuji, y = ~perc, color = ~repository_type, colors = pal) %>%
+  add_bars(text = ~n, textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
+  layout(barmode = "group",
+         title = "Grouped Bar Plot Licenses by Repository Type",
+         legend = list(orientation = "h"),
+         yaxis = list(title = FALSE, tickformat = ",.0%"),
+         xaxis = list(title = FALSE)) %>%
+  config(displayModeBar = FALSE)
+
+#~paste0(round(perc*100, 1), "%")
+
+
 sub1 <- data %>%
   group_by(repository_type, license_fuji) %>%
   summarise(count = n()) %>%
@@ -188,7 +209,7 @@ bubble <- shared_repo %>%
 
 licenses_linked <- subplot(bc, bubble, widths = c(0.2, 0.8)) %>% highlight(on = "plotly_click", off = "plotly_doubleclick") %>% hide_legend()
 
-licenses_linked
+
 
 data_license <- data %>%
   group_by(repository_type, license_fuji) %>%

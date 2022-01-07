@@ -26,14 +26,13 @@ partial_bundle(box_grouped)
 partial_bundle(violin_grouped)
 partial_bundle(bar_grouped)
 partial_bundle(bar_faceted)
-partial_bundle(box)
-partial_bundle(violin)
 ```
 
 ### FAIR Principles ungrouped/unfaceted
 
 ```{r}
-
+partial_bundle(box)
+partial_bundle(violin)
 ```
 
 
@@ -44,9 +43,9 @@ partial_bundle(violin)
 # 
 # p <- readRDS("output-charts/license_bar.rds")
 # partial_bundle(p)
+# licenses_linked
 
-p
-licenses_linked
+partial_bundle(licenses_bar_grouped)
 
 
 ```
