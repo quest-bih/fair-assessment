@@ -12,7 +12,9 @@ data <- charite_rd_2020_final
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 pal <- c("#634587", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
+pal_single <- "#DCE3E5"
 
+pal_bar <- list(color = pal_single, line = list(color = "#000000", width = 1))
 
 color_palette <- c("#B6B6B6", "#879C9D", "#F1BA50", "#AA493A",
                    "#303A3E", "#007265", "#634587", "#000000",
@@ -288,7 +290,7 @@ data_jour <- data %>%
 
 jour_bar_freq <- data_jour %>%
   plot_ly(x = ~n, y = ~journal_name_unpaywall,
-          marker = list(color = "#007265"),
+          marker = pal_bar,
           text = ~n, textposition = 'auto', textangle = 0, textfont = list(color = "#000000"),
           width = "100%", height = 650) %>% #, color = ~repository_ncbi
   add_bars() %>%
@@ -319,7 +321,7 @@ data_class <- data %>%
 
 class_bar_freq <- data_class %>%
   plot_ly(x = ~n, y = ~fields_of_research,
-          marker = list(color = "#007265"),
+          marker = pal_bar,
           text = ~n, textposition = 'auto', textangle = 0, textfont = list(color = "#000000"),
           width = "100%", height = 650) %>% #, color = ~repository_ncbi
   add_bars() %>%
