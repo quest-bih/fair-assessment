@@ -7,8 +7,18 @@ load("output-Rdata/charite_rd_2020_final.Rdata")
 
 data <- charite_rd_2020_final
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Colors ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 pal <- c("#634587", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
 
+
+color_palette <- c("#B6B6B6", "#879C9D", "#F1BA50", "#AA493A",
+                   "#303A3E", "#007265", "#634587", "#000000",
+                   "#DCE3E5")
+
+# scales::show_col(color_palette)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly FAIR repo type ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -108,8 +118,11 @@ data_3 <- data %>%
   mutate(value = value/100)
 
 box <- data_3 %>%
-  plot_ly(x = ~ name, y = ~ value, type = "box") %>%
-#  add_boxplot(boxmean = TRUE) %>%
+  plot_ly(x = ~ name, y = ~ value, type = "box",
+          color = list(color = "#007265"),
+          marker = list(color = "#007265"),
+          line = list(color = "#007265")) %>%
+            #  add_boxplot(boxmean = TRUE) %>%
   layout(
     title = "Box Plot FAIR Principles",
     legend = list(orientation = "h"),
@@ -117,6 +130,7 @@ box <- data_3 %>%
     xaxis = list(title = FALSE)
   ) %>%
   config(displayModeBar = FALSE)
+box
 
 violin <- data_3 %>%
   plot_ly(
@@ -124,7 +138,10 @@ violin <- data_3 %>%
     y = ~ value,
     split = ~ name,
     type = "violin",
-    meanline = list(visible = TRUE)
+    meanline = list(visible = TRUE),
+    color = list(color = "#007265"),
+    marker = list(color = "#007265"),
+    line = list(color = "#007265")
   ) %>%
   layout(
     title = "Violin Plot FAIR Principles",
@@ -158,7 +175,31 @@ licenses_bar_grouped <- data_license %>%
 
 #~paste0(round(perc*100, 1), "%")
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Resource Identifier ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+data_id <- data %>%
+  group_by(guid_scheme_fuji, repository_type) %>%
+  summarise(n = n()) %>%
+  ungroup() %>%
+  complete(guid_scheme_fuji, repository_type, fill = list(n = 0)) %>%
+  mutate(perc = round(n/sum(n),3)) %>%
+  drop_na()
+
+id_bar_grouped <- data_id %>%
+  plot_ly(x = ~guid_scheme_fuji, y = ~perc, color = ~repository_type, colors = pal) %>%
+  add_bars(text = ~n, textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
+  layout(barmode = "group",
+         title = "Grouped Bar Plot Ressource Identifiers by Repository Type",
+         legend = list(orientation = "h"),
+         yaxis = list(title = FALSE, tickformat = ",.0%"),
+         xaxis = list(title = FALSE)) %>%
+  config(displayModeBar = FALSE)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly licenses 2 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 sub1 <- data %>%
   group_by(repository_type, license_fuji) %>%
   summarise(count = n()) %>%

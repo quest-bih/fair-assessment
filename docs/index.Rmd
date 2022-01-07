@@ -13,7 +13,7 @@ source("R/07_b_charts.R")
 
 ## Interactive visualizations with plotly
 
-### FAIR Principled grouped/faceted by repository type
+### FAIR principles grouped/faceted by repository type
 ```{r}
 
 #box_1 <- readRDS("output-charts/box_1.rds")
@@ -28,7 +28,7 @@ partial_bundle(bar_grouped)
 partial_bundle(bar_faceted)
 ```
 
-### FAIR Principles ungrouped/unfaceted
+### FAIR principles ungrouped/unfaceted
 
 ```{r}
 partial_bundle(box)
@@ -50,8 +50,16 @@ partial_bundle(licenses_bar_grouped)
 
 ```
 
+### Ressource identifiers by repository type
+
+```{r}
+partial_bundle(id_bar_grouped)
+```
+
+
 ### Completeness FAIR by FUJI and Fair Enough
 ```{r}
+### Completeness FAIR by FUJI and Fair Enough
 scatter_fuji_fair
 #scatter_fuji_type
 ```
@@ -73,12 +81,13 @@ scatter_fuji_fair
 # partial_bundle(fig)
 ```
 
-## Static visualizations with ggplot
+
 
 ```{r}
-chart_bar_license
-chart_bar_count
-chart_treemap_repository
-chart_violin_repository
+# ## Static visualizations with ggplot
+# chart_bar_license
+# chart_bar_count
+# chart_treemap_repository
+# chart_violin_repository
 ```
 
