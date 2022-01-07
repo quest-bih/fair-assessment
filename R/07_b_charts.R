@@ -11,7 +11,7 @@ data <- charite_rd_2020_final
 # Colors ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-pal <- c("#634587", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
+pal <- c("#879C9D", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
 pal_single <- "#DCE3E5"
 
 pal_bar <- list(color = pal_single, line = list(color = "#000000", width = 1))
@@ -40,9 +40,9 @@ plot_1 <- data_2 %>%
   filter(repository_type == "field-specific repository") %>%
   plot_ly(x = ~name, y = ~value) %>%
   add_boxplot(name = "field-specific rep.", boxmean = TRUE,
-              color = list(color = "#634587"),
-              marker = list(color = "#634587"),
-              line = list(color = "#634587"))
+              color = list(color = "#879C9D"),
+              marker = list(color = "#879C9D"),
+              line = list(color = "#879C9D"))
 
 plot_2 <- data_2 %>%
   filter(repository_type == "general-purpose repository") %>%
@@ -121,9 +121,9 @@ data_3 <- data %>%
 
 box <- data_3 %>%
   plot_ly(x = ~ name, y = ~ value, type = "box",
-          color = list(color = "#007265"),
-          marker = list(color = "#007265"),
-          line = list(color = "#007265")) %>%
+          color = list(color = "#DCE3E5"),
+          marker = list(color = "#DCE3E5"),
+          line = list(color = "#DCE3E5")) %>%
             #  add_boxplot(boxmean = TRUE) %>%
   layout(
     title = "Box Plot FAIR Principles",
@@ -141,9 +141,9 @@ violin <- data_3 %>%
     split = ~ name,
     type = "violin",
     meanline = list(visible = TRUE),
-    color = list(color = "#007265"),
-    marker = list(color = "#007265"),
-    line = list(color = "#007265")
+    color = list(color = "#DCE3E5"),
+    marker = list(color = "#DCE3E5"),
+    line = list(color = "#DCE3E5")
   ) %>%
   layout(
     title = "Violin Plot FAIR Principles",
