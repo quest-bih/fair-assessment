@@ -5,7 +5,6 @@ library(tidyverse)
 
 load("output-Rdata/charite_rd_2020_final.Rdata")
 
-
 data <- charite_rd_2020_final
 
 pal <- c("#634587", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
@@ -22,9 +21,7 @@ data_2 <- data %>%
                           name == "fuji_percent_i" ~ "I",
                           name == "fuji_percent_r" ~ "R"
   )) %>%
-  mutate(name = factor(name, levels = c("F", "A", "I", "R"))) 
-
-data_2 <- data_2 %>%
+  mutate(name = factor(name, levels = c("F", "A", "I", "R"))) %>%
   mutate(value = value/100)
 
 plot_1 <- data_2 %>%
@@ -55,7 +52,7 @@ box_grouped <- data_2 %>%
   plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
   add_boxplot(boxmean = TRUE, ) %>%
   layout(boxmode = "group",
-         title = "Grouped Bax Plot FAIRness by Repository Type",
+         title = "Grouped Box Plot FAIRness by Repository Type",
          legend = list(orientation = "h"),
          yaxis = list(title = "FAIR Score according to F-UJI", tickformat = ",.0%"),
          xaxis = list(title = FALSE)) %>%
@@ -72,6 +69,8 @@ violin_grouped <- data_2 %>%
   config(displayModeBar = FALSE)
 
 data_2_sum <- data_2 %>%
+  
+  
   group_by(repository_type, name) %>%
   summarise(value = mean(value, na.rm = TRUE)) %>%
   ungroup()
@@ -95,6 +94,44 @@ bar_faceted <- data_2_sum %>%
          legend = list(orientation = "h"),
          yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%"),
          xaxis = list(title = FALSE)) %>%
+  config(displayModeBar = FALSE)
+
+data_3 <- data %>%
+  select(best_identifier, fuji_percent_f, fuji_percent_a, fuji_percent_i, fuji_percent_r) %>%
+  pivot_longer(cols = starts_with("fuji_percent")) %>%
+  mutate(name = case_when(name == "fuji_percent_f" ~ "F",
+                          name == "fuji_percent_a" ~ "A",
+                          name == "fuji_percent_i" ~ "I",
+                          name == "fuji_percent_r" ~ "R"
+  )) %>%
+  mutate(name = factor(name, levels = c("F", "A", "I", "R"))) %>%
+  mutate(value = value/100)
+
+box <- data_3 %>%
+  plot_ly(x = ~ name, y = ~ value, type = "box") %>%
+#  add_boxplot(boxmean = TRUE) %>%
+  layout(
+    title = "Box Plot FAIR Principles",
+    legend = list(orientation = "h"),
+    yaxis = list(title = "FAIR Score according to F-UJI", tickformat = ",.0%"),
+    xaxis = list(title = FALSE)
+  ) %>%
+  config(displayModeBar = FALSE)
+
+violin <- data_3 %>%
+  plot_ly(
+    x = ~ name,
+    y = ~ value,
+    split = ~ name,
+    type = "violin",
+    meanline = list(visible = TRUE)
+  ) %>%
+  layout(
+    title = "Violin Plot FAIR Principles",
+    yaxis = list(title = "FAIR Score according to F-UJI", tickformat = ",.0%"),
+    xaxis = list(title = FALSE)
+  ) %>%
+  hide_legend() %>%
   config(displayModeBar = FALSE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

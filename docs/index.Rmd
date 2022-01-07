@@ -13,6 +13,7 @@ source("R/07_b_charts.R")
 
 ## Interactive visualizations with plotly
 
+### FAIR Principled grouped/faceted by repository type
 ```{r}
 
 #box_1 <- readRDS("output-charts/box_1.rds")
@@ -25,8 +26,15 @@ partial_bundle(box_grouped)
 partial_bundle(violin_grouped)
 partial_bundle(bar_grouped)
 partial_bundle(bar_faceted)
+partial_bundle(box)
+partial_bundle(violin)
 ```
 
+### FAIR Principles ungrouped/unfaceted
+
+```{r}
+
+```
 
 
 ### Licenses by repository type
