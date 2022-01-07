@@ -8,6 +8,8 @@ load("output-Rdata/charite_rd_2020_final.Rdata")
 
 data <- charite_rd_2020_final
 
+pal <- c("#634587", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly FAIR repo type ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -40,33 +42,59 @@ plot_2 <- data_2 %>%
               color = list(color = "#F1BA50"),
               marker = list(color = "#F1BA50"),
               line = list(color = "#F1BA50")) %>%
-  layout(title = "Box Plot FAIRness by Repository Type")
+  layout(title = "Faceted Box Plot FAIRness by Repository Type")
 
-box_1 <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
+box_faceted <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
   layout(yaxis = list(tickformat = ",.0%", title = "FAIR Score according to F-UJI"),
          annotations = list(
            list(x = 0.1 , y = 1, text = "field-specific repository", showarrow = F, xref='paper', yref='paper'),
            list(x = 0.9 , y = 1, text = "general-purpose repository", showarrow = F, xref='paper', yref='paper'))) %>%
   config(displayModeBar = FALSE)
 
-box_1
+box_grouped <- data_2 %>%
+  plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
+  add_boxplot(boxmean = TRUE, ) %>%
+  layout(boxmode = "group",
+         title = "Grouped Bax Plot FAIRness by Repository Type",
+         legend = list(orientation = "h"),
+         yaxis = list(title = "FAIR Score according to F-UJI", tickformat = ",.0%"),
+         xaxis = list(title = FALSE)) %>%
+  config(displayModeBar = FALSE)
 
-pal <- c("#634587", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
+violin_grouped <- data_2 %>%
+  plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
+  add_trace(type = "violin") %>%
+  layout(violinmode = "group",
+         title = "Grouped Violin Plot FAIRness by Repository Type",
+         legend = list(orientation = "h"),
+         yaxis = list(title = "FAIR Score according to F-UJI", tickformat = ",.0%"),
+         xaxis = list(title = FALSE)) %>%
+  config(displayModeBar = FALSE)
 
 data_2_sum <- data_2 %>%
   group_by(repository_type, name) %>%
   summarise(value = mean(value, na.rm = TRUE)) %>%
   ungroup()
 
-bar_1 <- data_2_sum %>%
+bar_grouped <- data_2_sum %>%
   group_by(repository_type) %>%
   group_map(~ plot_ly(., x = ~name, y = ~value, color = ~repository_type, colors = pal, type = "bar",
                       text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
               layout(yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%")),
             .keep = TRUE) %>%
   subplot(nrows = 1, shareX = FALSE, shareY = TRUE) %>% 
-  layout(title = "Bar Plot FAIRness by Repository Type",
+  layout(title = "Faceted Bar Plot FAIRness by Repository Type",
          legend = list(orientation = "h")) %>%
+  config(displayModeBar = FALSE)
+
+bar_faceted <- data_2_sum %>%
+  plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
+  add_bars(text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
+  layout(barmode = "group",
+         title = "Grouped Bar Plot FAIRness by Repository Type",
+         legend = list(orientation = "h"),
+         yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%"),
+         xaxis = list(title = FALSE)) %>%
   config(displayModeBar = FALSE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -107,20 +135,76 @@ bc <- shared_repo %>%
   plot_ly() %>%
   group_by(repository_type) %>%
   summarise(n = n()) %>%
-  add_bars(x = ~repository_type, y = ~n) %>%
-  layout(barmode = "overlay")
+  add_bars(x = ~repository_type, y = ~n, color = ~repository_type, colors = pal,
+           text = ~repository_type, textposition = 'auto', textfont = list(color = "#000000")) %>%
+  layout(xaxis= list(showticklabels = FALSE),
+         barmode = "overlay")
 
 bubble <- shared_repo %>%
   plot_ly() %>%
-  group_by(license_fuji) %>%
+  group_by(license_fuji, repository_type) %>%
   summarise(n = n()) %>%
-  add_bars(x = ~license_fuji, y = ~n, hoverinfo = "text", text = ~license_fuji) %>%
-  layout(barmode = "overlay")
+  add_bars(x = ~license_fuji, y = ~n, color = ~repository_type, colors = pal,
+           hoverinfo = "text", text = ~license_fuji, textposition = 'auto', textfont = list(color = "#000000")) %>%
+  layout(xaxis= list(showticklabels = FALSE),
+         barmode = "overlay")
 
 licenses_linked <- subplot(bc, bubble, widths = c(0.2, 0.8)) %>% highlight(on = "plotly_click", off = "plotly_doubleclick") %>% hide_legend()
 
+licenses_linked
 
+data_license <- data %>%
+  group_by(repository_type, license_fuji) %>%
+  count() %>%
+  ungroup()
 
+bc <- data_license %>%
+  plot_ly() %>%
+  add_bars(x = ~repository_type, y = ~n, color = ~repository_type, colors = pal,
+           text = ~repository_type, textposition = 'auto', textfont = list(color = "#000000")) %>%
+  layout(xaxis= list(showticklabels = FALSE),
+         barmode = "stack")
+
+bubble <- data_license %>%
+  plot_ly() %>%
+  add_bars(x = ~license_fuji, y = ~n, color = ~repository_type, colors = pal,
+           hoverinfo = "text", text = ~license_fuji, textposition = 'auto', textfont = list(color = "#000000")) %>%
+  layout(xaxis= list(showticklabels = TRUE),
+         barmode = "group",
+         legend = list(orientation = "h"))
+
+licenses_linked <- subplot(bc, bubble, widths = c(0.2, 0.8)) %>% highlight(on = "plotly_click", off = "plotly_doubleclick") %>% hide_legend()
+
+licenses_linked
+
+data_license <- data %>%
+  group_by(repository_type, license_fuji) %>%
+  count() %>%
+  ungroup()
+
+shared_repo <- data_license %>% SharedData$new(key = ~repository_type)
+
+bc <- shared_repo %>%
+  plot_ly() %>%
+  # group_by(repository_type) %>%
+  # summarise(n = n()) %>%
+  add_bars(x = ~repository_type, y = ~n, color = ~repository_type, colors = pal,
+           text = ~repository_type, textposition = 'auto', textfont = list(color = "#000000")) %>%
+  layout(xaxis= list(showticklabels = FALSE),
+         barmode = "group")
+
+bubble <- shared_repo %>%
+  plot_ly() %>%
+  # group_by(license_fuji, repository_type) %>%
+  # summarise(n = n()) %>%
+  add_bars(x = ~license_fuji, y = ~n, color = ~repository_type, colors = pal,
+           hoverinfo = "text", text = ~license_fuji, textposition = 'auto', textfont = list(color = "#000000")) %>%
+  layout(xaxis= list(showticklabels = FALSE),
+         barmode = "group")
+
+licenses_linked <- subplot(bc, bubble, widths = c(0.2, 0.8)) %>% highlight(on = "plotly_click", off = "plotly_doubleclick") %>% hide_legend()
+
+licenses_linked
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly FUJI v FAIR Enough ----

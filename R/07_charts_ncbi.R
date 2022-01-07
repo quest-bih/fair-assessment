@@ -137,3 +137,5 @@ bar_ncbi_fair <- data_ncbi_long_sum %>%
   subplot(nrows = 1, shareX = FALSE, shareY = TRUE) %>% 
   layout(legend = list(orientation = "h")) %>%
   config(displayModeBar = FALSE)
+
+

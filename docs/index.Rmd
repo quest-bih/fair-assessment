@@ -5,13 +5,14 @@ date: "latest update: `r format(Sys.time(), '%d %B, %Y')`"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE)
 setwd("/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment")
 source("R/07_b_charts.R")
 ```
 
 ## Interactive visualizations with plotly
-### Completeness FAIR by repository type
+
 ```{r}
 
 #box_1 <- readRDS("output-charts/box_1.rds")
@@ -19,8 +20,11 @@ source("R/07_b_charts.R")
 # 
 # partial_bundle(box_1)
 
-partial_bundle(box_1)
-partial_bundle(bar_1)
+partial_bundle(box_faceted)
+partial_bundle(box_grouped)
+partial_bundle(violin_grouped)
+partial_bundle(bar_grouped)
+partial_bundle(bar_faceted)
 ```
 
 
