@@ -63,7 +63,24 @@ partial_bundle(rep_bar_freq)
 partial_bundle(rep_bar_fair)
 ```
 
+### Publishers
 
+```{r}
+partial_bundle(pub_bar_freq)
+```
+
+
+### Journals
+
+```{r}
+partial_bundle(jour_bar_freq)
+```
+
+### Journal Classifications
+
+```{r}
+partial_bundle(class_bar_freq)
+```
 
 
 ### Completeness FAIR by FUJI and Fair Enough

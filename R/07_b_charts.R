@@ -222,7 +222,7 @@ rep_bar_freq <- data_rep %>%
           width = "100%", height = 650) %>% #, color = ~repository_ncbi
   add_bars() %>%
   layout(title = "Frequency of Repositories",
-         xaxis = list(autorange = "reversed", side = "top", title = FALSE, showticklabels = FALSE),
+         xaxis = list(autorange = "reversed", side = "top", title = FALSE, showticklabels = FALSE, zeroline = FALSE),
          yaxis = list(autorange = "reversed", side = "right", title = FALSE),
          legend = list(x = 0.1, y = 0.5)) %>%
   config(displayModeBar = FALSE)
@@ -233,10 +233,98 @@ rep_bar_fair <- data_rep %>%
           width = "100%", height = 650) %>% #, color = ~repository_ncbi
   add_bars() %>%
   layout(title = "FAIR Score of Repositories (ordered by freq.)",
-         xaxis = list(autorange = "reversed", side = "top", title = FALSE, tickformat = ",.0%", showticklabels = FALSE),
+         xaxis = list(autorange = "reversed", side = "top", title = FALSE, tickformat = ",.0%", showticklabels = FALSE, zeroline = FALSE),
          yaxis = list(autorange = "reversed", side = "right", title = FALSE),
          legend = list(x = 0.1, y = 0.7)) %>%
   config(displayModeBar = FALSE)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Publisher ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_pub <- data %>%
+  group_by(publisher_unpaywall, repository_type) %>%
+  mutate(publisher_unpaywall = case_when(n() >= 2 ~ publisher_unpaywall,
+                                        n() <= 1 ~ "other publisher",
+                                        TRUE ~ publisher_unpaywall)) %>%
+  group_by(publisher_unpaywall, repository_type) %>%
+  summarise(n = n(), mean_fuji = mean(fuji_percent/100, na.rm = TRUE)) %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  mutate(publisher_unpaywall = fct_reorder(publisher_unpaywall,
+                                          n, max, .desc = TRUE)) %>%
+  mutate(repository_type = factor(repository_type, levels = c("field-specific repository", "general-purpose repository")))
+
+pub_bar_freq <- data_pub %>%
+  plot_ly(x = ~n, y = ~publisher_unpaywall, color = ~repository_type,
+          colors = pal, text = ~n, textposition = 'auto', textangle = 0, textfont = list(color = "#000000"),
+          width = "100%", height = 650) %>% #, color = ~repository_ncbi
+  add_bars() %>%
+  layout(barmode = "stack",
+         title = "Frequency of Publishers",
+         xaxis = list(autorange = "reversed", side = "top", title = FALSE, showticklabels = FALSE, zeroline = FALSE),
+         yaxis = list(autorange = "reversed", side = "right", title = FALSE),
+         legend = list(x = 0.1, y = 0.5)) %>%
+  config(displayModeBar = FALSE)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Journals----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_jour <- data %>%
+  group_by(journal_name_unpaywall) %>%
+  mutate(journal_name_unpaywall = case_when(n() >= 3 ~ journal_name_unpaywall,
+                                         n() <= 2 ~ "other journal",
+                                         TRUE ~ journal_name_unpaywall)) %>%
+  group_by(journal_name_unpaywall) %>%
+  summarise(n = n(), mean_fuji = mean(fuji_percent/100, na.rm = TRUE)) %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  mutate(journal_name_unpaywall = fct_reorder(journal_name_unpaywall,
+                                           n, max, .desc = TRUE)) 
+jour_bar_freq <- data_jour %>%
+  plot_ly(x = ~n, y = ~journal_name_unpaywall,
+          marker = list(color = "#007265"),
+          text = ~n, textposition = 'auto', textangle = 0, textfont = list(color = "#000000"),
+          width = "100%", height = 650) %>% #, color = ~repository_ncbi
+  add_bars() %>%
+  layout(barmode = "stack",
+         title = "Frequency of Journals",
+         xaxis = list(autorange = "reversed", side = "top", title = FALSE, showticklabels = FALSE, zeroline = FALSE),
+         yaxis = list(autorange = "reversed", side = "right", title = FALSE),
+         legend = list(x = 0.1, y = 0.5)) %>%
+  config(displayModeBar = FALSE)
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Journal Classification FoR----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_class <- data %>%
+  group_by(fields_of_research) %>%
+  mutate(fields_of_research = case_when(n() >= 2 ~ fields_of_research,
+                                            n() <= 1 ~ "other field of research",
+                                            TRUE ~ fields_of_research)) %>%
+  group_by(fields_of_research) %>%
+  summarise(n = n(), mean_fuji = mean(fuji_percent/100, na.rm = TRUE)) %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  mutate(fields_of_research = fct_reorder(fields_of_research,
+                                              n, max, .desc = TRUE)) 
+
+class_bar_freq <- data_class %>%
+  plot_ly(x = ~n, y = ~fields_of_research,
+          marker = list(color = "#007265"),
+          text = ~n, textposition = 'auto', textangle = 0, textfont = list(color = "#000000"),
+          width = "100%", height = 650) %>% #, color = ~repository_ncbi
+  add_bars() %>%
+  layout(barmode = "stack",
+         title = "Frequency of Field of Research",
+         xaxis = list(autorange = "reversed", side = "top", title = FALSE, showticklabels = FALSE, zeroline = FALSE),
+         yaxis = list(autorange = "reversed", side = "right", title = FALSE),
+         legend = list(x = 0.1, y = 0.5)) %>%
+  config(displayModeBar = FALSE)
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly licenses 2 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
