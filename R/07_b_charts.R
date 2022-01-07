@@ -204,16 +204,17 @@ id_bar_grouped <- data_id %>%
 data_rep <- data %>%
   group_by(repository_re3data, repository_type) %>%
   mutate(repository_re3data = case_when(n() >= 3 ~ repository_re3data,
-                                        n() <= 2 & repository_type == "field-specific repository" ~ "other field-specific repository",
-                                        n() <= 2 & repository_type == "general-purpose repository" ~ "other general-purpose repository",
-                                        TRUE ~ "other field-specific repository")) %>%
+                                        n() <= 2 & repository_type == "field-specific repository" ~ "Other field-specific Repositories",
+                                        n() <= 2 & repository_type == "general-purpose repository" ~ "Other general-purpose Repositories",
+                                        TRUE ~ "Other field-specific Repository")) %>%
   group_by(repository_re3data, repository_type) %>%
   summarise(n = n(), mean_fuji = mean(fuji_percent/100, na.rm = TRUE)) %>%
   ungroup() %>%
   arrange(desc(n)) %>%
   mutate(repository_re3data = fct_reorder(repository_re3data,
-                                          n, max, .desc = TRUE)) %>%
-  mutate(repository_type = factor(repository_type, levels = c("field-specific repository", "general-purpose repository")))
+                                          n, max, .desc = TRUE),
+         repository_re3data = fct_relevel(repository_re3data, "Other field-specific Repositories", after = Inf),
+         repository_re3data = fct_relevel(repository_re3data, "Other general-purpose Repositories", after = Inf))
 
 
 rep_bar_freq <- data_rep %>%
@@ -245,14 +246,15 @@ rep_bar_fair <- data_rep %>%
 data_pub <- data %>%
   group_by(publisher_unpaywall, repository_type) %>%
   mutate(publisher_unpaywall = case_when(n() >= 2 ~ publisher_unpaywall,
-                                        n() <= 1 ~ "other publisher",
+                                        n() <= 1 ~ "Other Publishers",
                                         TRUE ~ publisher_unpaywall)) %>%
   group_by(publisher_unpaywall, repository_type) %>%
   summarise(n = n(), mean_fuji = mean(fuji_percent/100, na.rm = TRUE)) %>%
   ungroup() %>%
   arrange(desc(n)) %>%
   mutate(publisher_unpaywall = fct_reorder(publisher_unpaywall,
-                                          n, max, .desc = TRUE)) %>%
+                                          n, max, .desc = TRUE),
+         publisher_unpaywall = fct_relevel(publisher_unpaywall, "Other Publishers", after = Inf)) %>%
   mutate(repository_type = factor(repository_type, levels = c("field-specific repository", "general-purpose repository")))
 
 pub_bar_freq <- data_pub %>%
@@ -274,14 +276,16 @@ pub_bar_freq <- data_pub %>%
 data_jour <- data %>%
   group_by(journal_name_unpaywall) %>%
   mutate(journal_name_unpaywall = case_when(n() >= 3 ~ journal_name_unpaywall,
-                                         n() <= 2 ~ "other journal",
+                                         n() <= 2 ~ "Other Journals",
                                          TRUE ~ journal_name_unpaywall)) %>%
   group_by(journal_name_unpaywall) %>%
   summarise(n = n(), mean_fuji = mean(fuji_percent/100, na.rm = TRUE)) %>%
   ungroup() %>%
   arrange(desc(n)) %>%
   mutate(journal_name_unpaywall = fct_reorder(journal_name_unpaywall,
-                                           n, max, .desc = TRUE)) 
+                                           n, max, .desc = TRUE),
+         journal_name_unpaywall = fct_relevel(journal_name_unpaywall, "Other Journals", after = Inf))
+
 jour_bar_freq <- data_jour %>%
   plot_ly(x = ~n, y = ~journal_name_unpaywall,
           marker = list(color = "#007265"),
@@ -303,14 +307,15 @@ jour_bar_freq <- data_jour %>%
 data_class <- data %>%
   group_by(fields_of_research) %>%
   mutate(fields_of_research = case_when(n() >= 2 ~ fields_of_research,
-                                            n() <= 1 ~ "other field of research",
+                                            n() <= 1 ~ "Other Fields of Research",
                                             TRUE ~ fields_of_research)) %>%
   group_by(fields_of_research) %>%
   summarise(n = n(), mean_fuji = mean(fuji_percent/100, na.rm = TRUE)) %>%
   ungroup() %>%
   arrange(desc(n)) %>%
   mutate(fields_of_research = fct_reorder(fields_of_research,
-                                              n, max, .desc = TRUE)) 
+                                              n, max, .desc = TRUE),
+         fields_of_research = fct_relevel(fields_of_research, "Other Fields of Research", after = Inf))
 
 class_bar_freq <- data_class %>%
   plot_ly(x = ~n, y = ~fields_of_research,
@@ -319,7 +324,7 @@ class_bar_freq <- data_class %>%
           width = "100%", height = 650) %>% #, color = ~repository_ncbi
   add_bars() %>%
   layout(barmode = "stack",
-         title = "Frequency of Field of Research",
+         title = "Frequency of Fields of Research",
          xaxis = list(autorange = "reversed", side = "top", title = FALSE, showticklabels = FALSE, zeroline = FALSE),
          yaxis = list(autorange = "reversed", side = "right", title = FALSE),
          legend = list(x = 0.1, y = 0.5)) %>%
