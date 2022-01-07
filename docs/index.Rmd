@@ -56,6 +56,15 @@ partial_bundle(licenses_bar_grouped)
 partial_bundle(id_bar_grouped)
 ```
 
+### Repositories
+
+```{r}
+partial_bundle(rep_bar_freq)
+partial_bundle(rep_bar_fair)
+```
+
+
+
 
 ### Completeness FAIR by FUJI and Fair Enough
 ```{r}

@@ -198,6 +198,46 @@ id_bar_grouped <- data_id %>%
   config(displayModeBar = FALSE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Repositories ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_rep <- data %>%
+  group_by(repository_re3data, repository_type) %>%
+  mutate(repository_re3data = case_when(n() >= 3 ~ repository_re3data,
+                                        n() <= 2 & repository_type == "field-specific repository" ~ "other field-specific repository",
+                                        n() <= 2 & repository_type == "general-purpose repository" ~ "other general-purpose repository",
+                                        TRUE ~ "other field-specific repository")) %>%
+  group_by(repository_re3data, repository_type) %>%
+  summarise(n = n(), mean_fuji = mean(fuji_percent/100, na.rm = TRUE)) %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  mutate(repository_re3data = fct_reorder(repository_re3data,
+                                          n, max, .desc = TRUE)) %>%
+  mutate(repository_type = factor(repository_type, levels = c("field-specific repository", "general-purpose repository")))
+
+
+rep_bar_freq <- data_rep %>%
+  plot_ly(x = ~n, y = ~repository_re3data, color = ~repository_type,
+          colors = pal, text = ~n, textposition = 'inside', textangle = 0, textfont = list(color = "#ffffff"),
+          width = "100%", height = 650) %>% #, color = ~repository_ncbi
+  add_bars() %>%
+  layout(title = "Frequency of Repositories",
+         xaxis = list(autorange = "reversed", side = "top", title = FALSE, showticklabels = FALSE),
+         yaxis = list(autorange = "reversed", side = "right", title = FALSE),
+         legend = list(x = 0.1, y = 0.5)) %>%
+  config(displayModeBar = FALSE)
+
+rep_bar_fair <- data_rep %>%
+  plot_ly(x = ~mean_fuji, y = ~repository_re3data, color = ~repository_type,
+          colors = pal, text = ~paste0(round(mean_fuji*100, 1), "%"), textposition = 'inside', textangle = 0, textfont = list(color = "#ffffff"),
+          width = "100%", height = 650) %>% #, color = ~repository_ncbi
+  add_bars() %>%
+  layout(title = "FAIR Score of Repositories (ordered by freq.)",
+         xaxis = list(autorange = "reversed", side = "top", title = FALSE, tickformat = ",.0%", showticklabels = FALSE),
+         yaxis = list(autorange = "reversed", side = "right", title = FALSE),
+         legend = list(x = 0.1, y = 0.7)) %>%
+  config(displayModeBar = FALSE)
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly licenses 2 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 sub1 <- data %>%
