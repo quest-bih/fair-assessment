@@ -460,6 +460,8 @@ chart_violin_repository <- data_2 %>%
 
 chart_violin_repository
 
+ggplotly(chart_violin_repository)
+
 data_2 %>% 
   group_by(name, repository_type) %>%
   summarize(mean = mean(value)) %>%

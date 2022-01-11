@@ -62,7 +62,7 @@ box_faceted <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
 
 box_grouped <- data_2 %>%
   plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
-  add_boxplot(boxmean = TRUE, ) %>%
+  add_boxplot(boxmean = TRUE) %>%
   layout(boxmode = "group",
          title = "Grouped Box Plot FAIRness by Repository Type",
          legend = list(orientation = "h"),
@@ -81,8 +81,6 @@ violin_grouped <- data_2 %>%
   config(displayModeBar = FALSE)
 
 data_2_sum <- data_2 %>%
-  
-  
   group_by(repository_type, name) %>%
   summarise(value = mean(value, na.rm = TRUE)) %>%
   ungroup()
@@ -102,11 +100,76 @@ bar_grouped <- data_2_sum %>%
   plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
   add_bars(text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
   layout(barmode = "group",
+         boxmode = "group",
          title = "Grouped Bar Plot FAIRness by Repository Type",
          legend = list(orientation = "h"),
          yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%"),
          xaxis = list(title = FALSE)) %>%
   config(displayModeBar = FALSE)
+
+bar_grouped
+
+
+# data_2_sum %>%
+#   plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
+#   add_bars(opacity = 0.5,
+#            text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
+#   add_trace(data = data_2, x = ~name, y = ~value, color = ~repository_type, colors = pal,
+#               showlegend = TRUE, type = 'scatter', mode = "markers") %>%
+#   layout(barmode = "group",
+#          scattermode = "group", 
+#          title = "Grouped Bar Plot FAIRness by Repository Type",
+#          legend = list(orientation = "h"),
+#          yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%"),
+#          xaxis = list(title = FALSE)) %>%
+#   config(displayModeBar = FALSE)
+
+
+chart_violin_repository <- data_2 %>%
+  ggplot(aes(x = name, y = value, fill = repository_type, group = name, 
+             text = paste0("FAIR Principle: ", name, "<br>FAIR Score:", round(value,1)*100, "%"))) +
+  #geom_boxplot() +
+  geom_violin(trim = TRUE, scale = "width", na.rm = TRUE) +
+  geom_jitter(height = 0.02, width = 0.45, size = 0.5, shape = 21, alpha = 0.2, color = "#000000", na.rm = TRUE) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.3, size = 0.25, color = "#000000", na.rm = TRUE) +
+  facet_wrap(~ repository_type) +
+  theme_minimal() +
+  labs(title = "FAIRness according to FUJI assessment") +
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = pal)
+
+
+
+chart_violin_repository_plotly <- ggplotly(chart_violin_repository,
+         tooltip = "text") %>% #list("AB" = "name", "XY" = "value")
+  layout(title = "Faceted Violin Plot FAIRness by Repository Type",
+         yaxis = list(title = "FAIR score according to F-UJI", tickformat = ",.0%"))
+
+
+# Documentation Tooltip: 
+# https://stackoverflow.com/questions/38733403/edit-labels-in-tooltip-for-plotly-maps-using-ggplot2-in-r
+# https://github.com/tidyverse/ggplot2/issues/3749
+# https://stackoverflow.com/questions/40598011/how-to-customize-hover-information-in-ggplotly-object/40598524
+
+
+
+# chart_violin_repository <- data_2 %>%
+#   ggplot(aes(x = name, y = value, fill = repository_type)) +
+#   # geom_boxplot() +
+#   geom_violin(trim = TRUE, scale = "width") +
+#   # geom_point(position=position_jitterdodge()) +
+#   geom_jitter(aes(group = repository_type), position=position_jitterdodge(height = 0.02, width = 0.5), size = 0.5, shape = 3, alpha = 0.5) +
+#   stat_summary(fun = mean, geom = "crossbar", width = 0.3, size = 0.25, color = "#000000") +
+#   #theme_minimal() +
+#   labs(title = "FAIRness according to FUJI assessment") +
+#   theme(legend.position = "none",
+#         axis.title.x = element_blank(),
+#         axis.title.y = element_blank()) +
+#   scale_y_continuous(labels = scales::percent)
+
 
 data_3 <- data %>%
   select(best_identifier, fuji_percent_f, fuji_percent_a, fuji_percent_i, fuji_percent_r) %>%
@@ -507,107 +570,81 @@ scatter_fuji_type <- subplot(bubble, bc, nrows = 2, heights = c(0.8, 0.2)) %>% h
 # Plotly Publisher v FUJI Percent ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data %>% count(publisher_unpaywall, journal_name_unpaywall)
-
-test <- data %>%
-  group_by(repository_type, publisher_unpaywall, journal_name_unpaywall) %>%
-  summarise(n = n(), fuji = mean(fuji_percent)) %>%
-  ungroup() %>%
-  mutate(publisher_unpaywall = fct_reorder(publisher_unpaywall, n, .fun = sum))
-
-test %>%
-  plot_ly() %>%
-  add_bars(y = ~publisher_unpaywall, x = ~n, color = ~journal_name_unpaywall) %>%
-  layout(barmode = "stack") %>% layout(showlegend = FALSE)
-
-
-test <- data %>%
-  group_by(fields_of_research, repository_re3data) %>%
-  summarise(n = n()) %>%
-  ungroup()
-
-test %>%
-  plot_ly() %>%
-  add_bars(y = ~fields_of_research, x = ~n, color = ~repository_re3data) %>%
-  layout(barmode = "stack") %>% layout(showlegend = FALSE)
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Static vis with ggplot ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-chart_bar_license <- data %>%
-  # filter(!is.na(repository_type)) %>%
-  ggplot(aes(license_fuji, fill = repository_type)) +
-  geom_bar(aes(y = (..count..)/sum(..count..))) +
-  #  facet_wrap( ~ repository_type) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        #  legend.position = "none",
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank()) +
-  labs(title = "Licenses according to FUJI assessment",
-       fill = "Repository") +
-  scale_y_continuous(labels = scales::percent)
-
-chart_bar_count <- data %>%
-  filter(!is.na(repository_type)) %>%
-  group_by(repository) %>%
-  mutate(repository_big = case_when(n() >= 10 ~ repository,
-                                    n() <= 9 & repository_type == "field-specific repository" ~ "other field-specific repository",
-                                    n() <= 9 & repository_type == "general-purpose repository" ~ "other general-purpose repository",
-                                    TRUE ~ "other repository")) %>%
-  ungroup() %>%
-  ggplot(aes(x = repository_type, group = fct_rev(fct_infreq(repository_big)))) +
-  geom_bar(colour="black", fill = "lightgrey") + 
-  geom_text(aes(label = repository_big), stat = "count", colour = "black", size = 2.5, position = position_stack(0.5)) + # , stat = "count"
-  theme_minimal() +
-  theme(legend.position = "none") +
-  labs(title = "Count", subtitle = "(other repository is n < 10)")
-
-library(treemapify)
-library(ggplot2)
-data_3 <- data %>%
-  group_by(repository) %>%
-  mutate(repository_big = case_when(n() >= 10 ~ repository,
-                                    TRUE ~ "other repository")) %>%
-  ungroup() %>%
-  filter(!is.na(repository_type)) %>%
-  group_by(repository_big, repository_type) %>%
-  summarise(sum = n())
-
-chart_treemap_repository <- ggplot(data_3, aes(area = sum, fill = repository_type, label = repository_big, subgroup = repository_type)) +
-  geom_treemap() +
-  geom_treemap_subgroup_text(place = "bottom", grow = F, alpha = 0.5, colour =
-                               "black", fontface = "italic", min.size = 0) +
-  geom_treemap_text(colour = "white", place = "centre",
-                    grow = FALSE, min.size = 0) +
-  theme(legend.position = "none") +
-  labs(title = "Treemap of Repositories", subtitle = "(other repository is n < 10)")
-
-data_2 <- data %>%
-  select(best_identifier, repository_type, guid_scheme_fuji, fuji_percent_f, fuji_percent_a, fuji_percent_i, fuji_percent_r) %>%
-  pivot_longer(cols = starts_with("fuji_percent")) %>%
-  mutate(name = case_when(name == "fuji_percent_f" ~ "F",
-                          name == "fuji_percent_a" ~ "A",
-                          name == "fuji_percent_i" ~ "I",
-                          name == "fuji_percent_r" ~ "R"
-  )) %>%
-  mutate(name = factor(name, levels = c("F", "A", "I", "R"))) 
-
-chart_violin_repository <- data_2 %>%
-  #filter(repository_type == "general-purpose repository") %>%
-  #filter(repository_type == "field-specific repository") %>%
-  filter(!is.na(repository_type)) %>%
-  ggplot(aes(x = name, y = value, fill = name)) +
-  # geom_boxplot() +
-  geom_violin(trim = TRUE, scale = "width") +
-  
-  geom_jitter(aes(color = guid_scheme_fuji), height = 1, width = 0.3, size = 0.5, shape = 1) +
-  stat_summary(fun = mean, geom = "point", size = 2,color = "red") +
-  facet_wrap(~ repository_type) +
-  theme_minimal() +
-  labs(title = "FAIRness according to FUJI assessment") +
-  theme(legend.position = "none",
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank()) +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "%", prefix = ""))
+# data %>% count(publisher_unpaywall, journal_name_unpaywall)
+# 
+# test <- data %>%
+#   group_by(repository_type, publisher_unpaywall, journal_name_unpaywall) %>%
+#   summarise(n = n(), fuji = mean(fuji_percent)) %>%
+#   ungroup() %>%
+#   mutate(publisher_unpaywall = fct_reorder(publisher_unpaywall, n, .fun = sum))
+# 
+# test %>%
+#   plot_ly() %>%
+#   add_bars(y = ~publisher_unpaywall, x = ~n, color = ~journal_name_unpaywall) %>%
+#   layout(barmode = "stack") %>% layout(showlegend = FALSE)
+# 
+# 
+# test <- data %>%
+#   group_by(fields_of_research, repository_re3data) %>%
+#   summarise(n = n()) %>%
+#   ungroup()
+# 
+# test %>%
+#   plot_ly() %>%
+#   add_bars(y = ~fields_of_research, x = ~n, color = ~repository_re3data) %>%
+#   layout(barmode = "stack") %>% layout(showlegend = FALSE)
+# 
+# #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# # Static vis with ggplot ----
+# #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# 
+# chart_bar_license <- data %>%
+#   # filter(!is.na(repository_type)) %>%
+#   ggplot(aes(license_fuji, fill = repository_type)) +
+#   geom_bar(aes(y = (..count..)/sum(..count..))) +
+#   #  facet_wrap( ~ repository_type) +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1),
+#         #  legend.position = "none",
+#         axis.title.x = element_blank(),
+#         axis.title.y = element_blank()) +
+#   labs(title = "Licenses according to FUJI assessment",
+#        fill = "Repository") +
+#   scale_y_continuous(labels = scales::percent)
+# 
+# chart_bar_count <- data %>%
+#   filter(!is.na(repository_type)) %>%
+#   group_by(repository) %>%
+#   mutate(repository_big = case_when(n() >= 10 ~ repository,
+#                                     n() <= 9 & repository_type == "field-specific repository" ~ "other field-specific repository",
+#                                     n() <= 9 & repository_type == "general-purpose repository" ~ "other general-purpose repository",
+#                                     TRUE ~ "other repository")) %>%
+#   ungroup() %>%
+#   ggplot(aes(x = repository_type, group = fct_rev(fct_infreq(repository_big)))) +
+#   geom_bar(colour="black", fill = "lightgrey") + 
+#   geom_text(aes(label = repository_big), stat = "count", colour = "black", size = 2.5, position = position_stack(0.5)) + # , stat = "count"
+#   theme_minimal() +
+#   theme(legend.position = "none") +
+#   labs(title = "Count", subtitle = "(other repository is n < 10)")
+# 
+# library(treemapify)
+# library(ggplot2)
+# data_3 <- data %>%
+#   group_by(repository) %>%
+#   mutate(repository_big = case_when(n() >= 10 ~ repository,
+#                                     TRUE ~ "other repository")) %>%
+#   ungroup() %>%
+#   filter(!is.na(repository_type)) %>%
+#   group_by(repository_big, repository_type) %>%
+#   summarise(sum = n())
+# 
+# chart_treemap_repository <- ggplot(data_3, aes(area = sum, fill = repository_type, label = repository_big, subgroup = repository_type)) +
+#   geom_treemap() +
+#   geom_treemap_subgroup_text(place = "bottom", grow = F, alpha = 0.5, colour =
+#                                "black", fontface = "italic", min.size = 0) +
+#   geom_treemap_text(colour = "white", place = "centre",
+#                     grow = FALSE, min.size = 0) +
+#   theme(legend.position = "none") +
+#   labs(title = "Treemap of Repositories", subtitle = "(other repository is n < 10)")
+# 
+# 
