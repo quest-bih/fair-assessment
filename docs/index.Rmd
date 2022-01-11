@@ -1,7 +1,7 @@
 ---
 title: "FAIR Assessment Visualizations"
 author: "contact: jan.taubitz@charite.de"
-date: "latest update: `r format(Sys.time(), '%d %B %Y')`"
+date: "last update: `r format(Sys.time(), '%d %B %Y')`"
 ---
 
 ```{r setup, include=FALSE}
