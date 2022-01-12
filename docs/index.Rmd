@@ -26,6 +26,8 @@ partial_bundle(box_grouped)
 
 partial_bundle(box_faceted)
 
+partial_bundle(box_faceted_margin)
+
 partial_bundle(violin_grouped)
 
 partial_bundle(chart_violin_repository_plotly)
@@ -33,6 +35,8 @@ partial_bundle(chart_violin_repository_plotly)
 partial_bundle(bar_grouped)
 
 partial_bundle(bar_faceted)
+
+
 
 
 ```

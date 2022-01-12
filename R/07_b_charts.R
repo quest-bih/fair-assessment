@@ -23,7 +23,7 @@ data <- charite_rd_2020_final
 
 # Colors for repository type
 pal <- c("#879C9D", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
-pal_single <- "#DCE3E5"
+pal_single <- "#B6B6B6"
 pal_bg <- "#DCE3E5"
 
 pal_bar <- list(color = pal_single, line = list(color = "#000000", width = 1))
@@ -101,8 +101,6 @@ marg <- list(
   pad = 4
 )
 
-
-
 box_faceted_margin <- box_faceted %>%
   layout(
     margin = marg,
@@ -111,44 +109,46 @@ box_faceted_margin <- box_faceted %>%
     title = FALSE,
     annotations = list(
       list(
-        x = -0.1 ,
-        y = 1.60,
+        x = -0.08 ,
+        y = 1.45,
         text = "<b>Open Data</b>",
         showarrow = F,
         xref = 'paper',
         yref = 'paper',
-        font = list(size = 15, color = "black")
+        font = list(size = 15, color = "#2F3E4E", family = "Arial")
       ),
       list(
-        x = -0.1 ,
-        y = 1.40,
-        text = "<b>12 %</b>",
+        x = -0.08 ,
+        y = 1.30,
+        text = "<b>16 %</b>",
         showarrow = F,
         xref = 'paper',
         yref = 'paper',
         font = list(
           size = 35,
-          color = "#c12075",
-          family = "Helvetica"
+          color = "#9C2E7A",
+          family = "Arial"
         )
       ),
       list(
-        x = -0.1 ,
-        y = 1.20,
+        x = -0.08 ,
+        y = 1.15,
         text = "of datasets from 2020 are FAIR (i.e. FAIR score of 50 % or higher)",
         showarrow = F,
         xref = 'paper',
         yref = 'paper',
         font = list(
           size = 15,
-          color = "#c12075",
-          family = "Helvetica"
+          color = "#9C2E7A",
+          family = "Arial"
         )
       )
     )
   )
 
 box_faceted_margin
+
+#9C2E7A
 
 # font_t <- list(
 #   family = "sans serif",
@@ -234,7 +234,8 @@ chart_violin_repository <- data_2 %>%
   labs(title = "FAIRness according to FUJI assessment") +
   theme(legend.position = "none",
         axis.title.x = element_blank(),
-        axis.title.y = element_blank()) +
+        axis.title.y = element_blank(),
+        panel.grid.major = element_blank()) +
   scale_y_continuous(labels = scales::percent) +
   scale_fill_manual(values = pal)
 
@@ -242,8 +243,54 @@ chart_violin_repository <- data_2 %>%
 chart_violin_repository_plotly <- ggplotly(chart_violin_repository,
          tooltip = "text") %>% #list("AB" = "name", "XY" = "value")
   layout(title = "Faceted Violin Plot FAIRness by Repository Type",
-         yaxis = list(title = "FAIR score according to F-UJI", tickformat = ",.0%"))
+         yaxis = list(title = list(text = "FAIR score according to F-UJI", font = list(size = 12)), tickformat = ",.0%"))
 
+
+chart_violin_repository_plotly <- chart_violin_repository_plotly %>%
+  layout(
+    margin = marg,
+    paper_bgcolor = pal_bg,
+    plot_bgcolor = pal_bg,
+    title = FALSE,
+    annotations = list(
+      list(
+        x = -0.08 ,
+        y = 1.45,
+        text = "<b>Open Data</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(size = 15, color = "#2F3E4E", family = "Arial")
+      ),
+      list(
+        x = -0.08 ,
+        y = 1.35,
+        text = "<b>16 %</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 35,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      ),
+      list(
+        x = -0.08 ,
+        y = 1.20,
+        text = "of datasets from 2020 are FAIR (i.e. FAIR score of 50 % or higher)",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 15,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      )
+    )
+  )
+  
 
 # Documentation Tooltip: 
 # https://stackoverflow.com/questions/38733403/edit-labels-in-tooltip-for-plotly-maps-using-ggplot2-in-r
@@ -252,9 +299,9 @@ chart_violin_repository_plotly <- ggplotly(chart_violin_repository,
 
 box <- data_2 %>%
   plot_ly(x = ~ name, y = ~ value, type = "box",
-          color = list(color = "#DCE3E5"),
-          marker = list(color = "#DCE3E5"),
-          line = list(color = "#DCE3E5")) %>%
+          color = list(color = "#B6B6B6"),
+          marker = list(color = "#B6B6B6"),
+          line = list(color = "#B6B6B6")) %>%
             #  add_boxplot(boxmean = TRUE) %>%
   layout(
     title = "Box Plot FAIR Principles",
@@ -272,9 +319,9 @@ violin <- data_2 %>%
     split = ~ name,
     type = "violin",
     meanline = list(visible = TRUE),
-    color = list(color = "#DCE3E5"),
-    marker = list(color = "#DCE3E5"),
-    line = list(color = "#DCE3E5")
+    color = list(color = "#B6B6B6"),
+    marker = list(color = "#B6B6B6"),
+    line = list(color = "#B6B6B6")
   ) %>%
   layout(
     title = "Violin Plot FAIR Principles",
