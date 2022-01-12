@@ -27,15 +27,6 @@ DiagrammeR::grViz("digraph {
   rec1 -> rec2 -> rec3
   }",
   height = 300)
-
-# Export Diagramme to svg or png
-# https://stackoverflow.com/questions/42737645/how-to-export-images-of-diagrammer-in-r
-# library(DiagrammeRsvg)
-# library(xml2)
-# f %>%
-#   export_svg() %>%
-#   read_xml() %>%
-#   write_xml("output/charts/flow_1.svg")
 ```
 
 #### Step 2. Querying article DOIs via Unpaywall API
@@ -66,7 +57,7 @@ dplyr::glimpse(output_unpaywall)
 In comparison, considerably more steps are required to perform an open data assessment.
 
 ```{r, echo = FALSE}
-f <- DiagrammeR::grViz("digraph {
+DiagrammeR::grViz("digraph {
   graph [layout = dot, rankdir = TB]
   
   node [shape = rectangle, fontname = Helvetica, color = white, style = filled, fillcolor = '#70acc0']        
@@ -84,7 +75,14 @@ f <- DiagrammeR::grViz("digraph {
   }",
   height = 600)
 
-ggsave("output/charts/flow_1.png", plot = f)
+# Export Diagramme to svg or png
+# https://stackoverflow.com/questions/42737645/how-to-export-images-of-diagrammer-in-r
+# library(DiagrammeRsvg)
+# library(xml2)
+# f %>%
+#   export_svg() %>%
+#   read_xml() %>%
+#   write_xml("output/charts/flow_1.svg")
 ```
 
 #### Step 7. Final data table
@@ -113,6 +111,7 @@ partial_bundle(licenses_bar_grouped)
 partial_bundle(rep_bar_freq)
 
 partial_bundle(rep_bar_fair)
+
 ```
 
 ### Ressources

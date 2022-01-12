@@ -14,7 +14,7 @@ library(crosstalk)
 library(plotly)
 library(tidyverse)
 
-load("output-Rdata/charite_rd_2020_final.Rdata")
+load("output/Rdata/charite_rd_2020_final.Rdata")
 data <- charite_rd_2020_final
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -24,6 +24,7 @@ data <- charite_rd_2020_final
 # Colors for repository type
 pal <- c("#879C9D", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
 pal_single <- "#DCE3E5"
+pal_bg <- "#DCE3E5"
 
 pal_bar <- list(color = pal_single, line = list(color = "#000000", width = 1))
 
@@ -87,6 +88,76 @@ box_faceted <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
            list(x = 0.1 , y = 1, text = "field-specific repository", showarrow = F, xref='paper', yref='paper'),
            list(x = 0.9 , y = 1, text = "general-purpose repository", showarrow = F, xref='paper', yref='paper'))) %>%
   config(displayModeBar = FALSE)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Test to copy dashboard plot style ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+marg <- list(
+  l = 20,
+  r = 20,
+  b = 20,
+  t = 150,
+  pad = 4
+)
+
+
+
+box_faceted_margin <- box_faceted %>%
+  layout(
+    margin = marg,
+    paper_bgcolor = pal_bg,
+    plot_bgcolor = pal_bg,
+    title = FALSE,
+    annotations = list(
+      list(
+        x = -0.1 ,
+        y = 1.60,
+        text = "<b>Open Data</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(size = 15, color = "black")
+      ),
+      list(
+        x = -0.1 ,
+        y = 1.40,
+        text = "<b>12 %</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 35,
+          color = "#c12075",
+          family = "Helvetica"
+        )
+      ),
+      list(
+        x = -0.1 ,
+        y = 1.20,
+        text = "of datasets from 2020 are FAIR (i.e. FAIR score of 50 % or higher)",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 15,
+          color = "#c12075",
+          family = "Helvetica"
+        )
+      )
+    )
+  )
+
+box_faceted_margin
+
+# font_t <- list(
+#   family = "sans serif",
+#   size = 14,
+#   color = 'blue')
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Test end ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 box_grouped <- data_2 %>%
   plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
