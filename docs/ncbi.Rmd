@@ -10,7 +10,7 @@ source("R/07_charts_ncbi.R")
 
 ## Open Research Data by Charité scientists in 2020
 
-For 2020, `r length(unique(data$article))` research articles written by Charité scientists were identified that shared the underlying research data freely in a data repository. Of these 300 articles, `r data %>% filter(str_detect(best_identifier, "ncbi")) %>% distinct(article) %>% nrow()` used one or more NCBI repositories to share their data. [Gene Expression Omnibus](https://www.ncbi.nlm.nih.gov/geo/) in particular is a frequently used repository by Charité scientists. 88 articles have shared their research data in this repository.
+For 2020, `r length(unique(data$article))` research articles written by Charité scientists were identified that shared the underlying research data freely in a data repository. Of these 300 articles, `r data %>% filter(str_detect(best_identifier, "ncbi")) %>% distinct(article) %>% nrow()` used one or more NCBI repositories to share data. [Gene Expression Omnibus](https://www.ncbi.nlm.nih.gov/geo/) in particular is a frequently used repository by Charité scientists. 88 articles have shared research data in this repository.
 
 ```{r}
 bar_ncbi
