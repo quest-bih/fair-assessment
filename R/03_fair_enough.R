@@ -18,7 +18,7 @@ library(tidyverse)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Load GUIS from FUJI Assessment
-load("output-Rdata/fuji_guid.Rdata")
+load("output/Rdata/fuji_guid.Rdata")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # FAIR enough data ----
@@ -53,8 +53,8 @@ fair_enough_list <-
   map(fuji_guid$guid, slow_fair_enough)
 
 # Save data locally
-save(fair_enough_list, file = "output-Rdata/fair_enough_list.Rdata")
-load("output-Rdata/fair_enough_list.Rdata")
+save(fair_enough_list, file = "output/Rdata/fair_enough_list.Rdata")
+load("output/Rdata/fair_enough_list.Rdata")
 
 # NCmisc::list.functions.in.file("fair_assessments/03_fair_enough.R")
 

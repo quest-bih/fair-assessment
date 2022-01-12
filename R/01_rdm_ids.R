@@ -104,7 +104,6 @@ charite_rd_2020_clean <- charite_rd_2020 %>%
     )) %>%
   select(-identifier)
 
-
 # Create vector with best identifiers for querying assessment tools
 charite_rd_2020_guid <- charite_rd_2020_clean %>%
   pull(best_identifier) %>%

@@ -1,40 +1,68 @@
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualizations of FAIR Assessments ----
+# Contact: jan.taubitz@charite.de
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Prepare R environment----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+cat("\014") # Clear your console
+rm(list = ls()) # Clear your environment
+
 library(crosstalk)
 library(plotly)
 library(tidyverse)
 
-
 load("output-Rdata/charite_rd_2020_final.Rdata")
-
 data <- charite_rd_2020_final
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Colors ----
+# Create color palettes ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+# Colors for repository type
 pal <- c("#879C9D", "#F1BA50") %>% setNames(c("field-specific repository", "general-purpose repository"))
 pal_single <- "#DCE3E5"
 
 pal_bar <- list(color = pal_single, line = list(color = "#000000", width = 1))
 
+# Charité Dashboard color palette
 color_palette <- c("#B6B6B6", "#879C9D", "#F1BA50", "#AA493A",
                    "#303A3E", "#007265", "#634587", "#000000",
                    "#DCE3E5")
 
+# Show colors from vector with colors
 # scales::show_col(color_palette)
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly FAIR repo type ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+# Long data to analyse FAIR main principles
 data_2 <- data %>%
-  select(best_identifier, repository_type, guid_scheme_fuji, fuji_percent_f, fuji_percent_a, fuji_percent_i, fuji_percent_r) %>%
+  select(
+    best_identifier,
+    repository_re3data, 
+    repository_type,
+    guid_scheme_fuji,
+    fuji_percent_f,
+    fuji_percent_a,
+    fuji_percent_i,
+    fuji_percent_r
+  ) %>%
   pivot_longer(cols = starts_with("fuji_percent")) %>%
-  mutate(name = case_when(name == "fuji_percent_f" ~ "F",
-                          name == "fuji_percent_a" ~ "A",
-                          name == "fuji_percent_i" ~ "I",
-                          name == "fuji_percent_r" ~ "R"
-  )) %>%
+  mutate(
+    name = case_when(
+      name == "fuji_percent_f" ~ "F",
+      name == "fuji_percent_a" ~ "A",
+      name == "fuji_percent_i" ~ "I",
+      name == "fuji_percent_r" ~ "R"
+    )
+  ) %>%
   mutate(name = factor(name, levels = c("F", "A", "I", "R"))) %>%
-  mutate(value = value/100)
+  mutate(value = value / 100) %>%
+  drop_na(value)
 
 plot_1 <- data_2 %>%
   filter(repository_type == "field-specific repository") %>%
@@ -100,14 +128,11 @@ bar_grouped <- data_2_sum %>%
   plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
   add_bars(text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
   layout(barmode = "group",
-         boxmode = "group",
          title = "Grouped Bar Plot FAIRness by Repository Type",
          legend = list(orientation = "h"),
          yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%"),
          xaxis = list(title = FALSE)) %>%
   config(displayModeBar = FALSE)
-
-bar_grouped
 
 
 # data_2_sum %>%
@@ -127,7 +152,8 @@ bar_grouped
 
 chart_violin_repository <- data_2 %>%
   ggplot(aes(x = name, y = value, fill = repository_type, group = name, 
-             text = paste0("FAIR Principle: ", name, "<br>FAIR Score:", round(value,1)*100, "%"))) +
+             text = paste0("FAIR Principle: ", name, "<br>FAIR Score: ", round(value,1)*100, "%",
+                           "<br>Repository: ", repository_re3data))) +
   #geom_boxplot() +
   geom_violin(trim = TRUE, scale = "width", na.rm = TRUE) +
   geom_jitter(height = 0.02, width = 0.45, size = 0.5, shape = 21, alpha = 0.2, color = "#000000", na.rm = TRUE) +
@@ -142,7 +168,6 @@ chart_violin_repository <- data_2 %>%
   scale_fill_manual(values = pal)
 
 
-
 chart_violin_repository_plotly <- ggplotly(chart_violin_repository,
          tooltip = "text") %>% #list("AB" = "name", "XY" = "value")
   layout(title = "Faceted Violin Plot FAIRness by Repository Type",
@@ -154,35 +179,7 @@ chart_violin_repository_plotly <- ggplotly(chart_violin_repository,
 # https://github.com/tidyverse/ggplot2/issues/3749
 # https://stackoverflow.com/questions/40598011/how-to-customize-hover-information-in-ggplotly-object/40598524
 
-
-
-# chart_violin_repository <- data_2 %>%
-#   ggplot(aes(x = name, y = value, fill = repository_type)) +
-#   # geom_boxplot() +
-#   geom_violin(trim = TRUE, scale = "width") +
-#   # geom_point(position=position_jitterdodge()) +
-#   geom_jitter(aes(group = repository_type), position=position_jitterdodge(height = 0.02, width = 0.5), size = 0.5, shape = 3, alpha = 0.5) +
-#   stat_summary(fun = mean, geom = "crossbar", width = 0.3, size = 0.25, color = "#000000") +
-#   #theme_minimal() +
-#   labs(title = "FAIRness according to FUJI assessment") +
-#   theme(legend.position = "none",
-#         axis.title.x = element_blank(),
-#         axis.title.y = element_blank()) +
-#   scale_y_continuous(labels = scales::percent)
-
-
-data_3 <- data %>%
-  select(best_identifier, fuji_percent_f, fuji_percent_a, fuji_percent_i, fuji_percent_r) %>%
-  pivot_longer(cols = starts_with("fuji_percent")) %>%
-  mutate(name = case_when(name == "fuji_percent_f" ~ "F",
-                          name == "fuji_percent_a" ~ "A",
-                          name == "fuji_percent_i" ~ "I",
-                          name == "fuji_percent_r" ~ "R"
-  )) %>%
-  mutate(name = factor(name, levels = c("F", "A", "I", "R"))) %>%
-  mutate(value = value/100)
-
-box <- data_3 %>%
+box <- data_2 %>%
   plot_ly(x = ~ name, y = ~ value, type = "box",
           color = list(color = "#DCE3E5"),
           marker = list(color = "#DCE3E5"),
@@ -197,7 +194,7 @@ box <- data_3 %>%
   config(displayModeBar = FALSE)
 box
 
-violin <- data_3 %>%
+violin <- data_2 %>%
   plot_ly(
     x = ~ name,
     y = ~ value,
@@ -472,7 +469,6 @@ bubble <- data_license %>%
 
 licenses_linked <- subplot(bc, bubble, widths = c(0.2, 0.8)) %>% highlight(on = "plotly_click", off = "plotly_doubleclick") %>% hide_legend()
 
-licenses_linked
 
 data_license <- data %>%
   group_by(repository_type, license_fuji) %>%

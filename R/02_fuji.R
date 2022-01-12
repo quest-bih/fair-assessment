@@ -40,8 +40,8 @@ url_tester <- function(url_list){
 # Try this function on the urls object
 url_test <- url_tester(charite_rd_2020_guid )
 
-save(url_test, file = "output-Rdata/url_test.Rdata")
-load("output-Rdata/url_test.Rdata")
+save(url_test, file = "output/Rdata/url_test.Rdata")
+load("output/Rdata/url_test.Rdata")
 
 url_test_df <- url_test %>% tibble() %>% mutate(name = names(url_test)) %>% relocate(2, value = 1) %>% filter(value != "200")
 
@@ -73,8 +73,8 @@ fuji_local_server <- function(rd_id){
 fuji_local_list <- map(charite_rd_2020_guid, fuji_local_server)
 
 # Save data locally
-save(fuji_local_list, file = "output-Rdata/fuji_local_list.Rdata")
-load("output-Rdata/fuji_local_list.Rdata")
+save(fuji_local_list, file = "output/Rdata/fuji_local_list.Rdata")
+load("output/Rdata/fuji_local_list.Rdata")
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -89,7 +89,7 @@ fuji_guid <- map_dfr(seq_along(fuji_local_list),
 
 # test <- fuji_guid %>% filter(guid != rd_id)
                                 
-save(fuji_guid, file = "output-Rdata/fuji_guid.Rdata")
+save(fuji_guid, file = "output/Rdata/fuji_guid.Rdata")
 
 # Help
 # https://curlconverter.com/#r curl translater

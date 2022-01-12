@@ -16,10 +16,10 @@ library(tidyverse)
 # Load data
 source("R/01_rdm_ids.R")
 
-load("output-Rdata/fuji_local_list.Rdata")
-load("output-Rdata/fair_enough_list.Rdata")
+load("output/Rdata/fuji_local_list.Rdata")
+load("output/Rdata/fair_enough_list.Rdata")
 #load("output-Rdata/fair_evaluation_data.Rdata")
-load("output-Rdata/fuji_guid.Rdata")
+load("output/Rdata/fuji_guid.Rdata")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Aggregate and manipulate FUJI data ----
@@ -115,8 +115,6 @@ fuji_guid_scheme <-
   select(rd_id = object_identifier, guid_scheme) %>%
   mutate_all(str_trim)
 
-
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Aggregate and manipulate FAIR Enough data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -152,11 +150,9 @@ fair_enough_license <- fair_enough_license %>%
   rename(license_fair_enough = license) %>%
   select(-score)
     
-
 fair_enough_summary <- fair_enough_summary %>% left_join(fair_enough_license, by = "guid") %>%
   mutate(license_fair_enough = replace_na(license_fair_enough, "no license"))
   
-                                
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Join FUJI and FAIR Enough data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -178,8 +174,8 @@ charite_rd_2020_join <- charite_rd_2020_clean %>%
   mutate(license = replace_na(license, "no license")) %>%
   left_join(fuji_guid_scheme, by = c("best_identifier" = "rd_id"))
   
-save(charite_rd_2020_join, file = "output-Rdata/charite_rd_2020_join.Rdata")
-load("output-Rdata/charite_rd_2020_join.Rdata")
+save(charite_rd_2020_join, file = "output/Rdata/charite_rd_2020_join.Rdata")
+load("output/Rdata/charite_rd_2020_join.Rdata")
 
 
 results_long <-

@@ -18,7 +18,7 @@ library(tidyverse)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Load GUIS from FUJI Assessment
-load("output-Rdata/fuji_guid.Rdata")
+load("output/Rdata/fuji_guid.Rdata")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # FAIR Evaluation data ----
@@ -51,7 +51,7 @@ rate <- rate_delay(10)
 fair_evaluation_server_slowly <- slowly(fair_evaluation_server, rate = rate, quiet = FALSE)
 fair_evaluation_data <- map(fuji_guid$guid, fair_evaluation_server_slowly)
 
-save(fair_evaluation_data, file = "output-Rdata/fair_evaluation_data.Rdata")
-load("output-Rdata/fair_evaluation_data.Rdata")
+save(fair_evaluation_data, file = "output/Rdata/fair_evaluation_data.Rdata")
+load("output/Rdata/fair_evaluation_data.Rdata")
 
 

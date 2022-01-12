@@ -15,10 +15,8 @@ library(plotly)
 library(tidyverse)
 
 
-load("output-Rdata/charite_rd_2020_final.Rdata")
-
+load("output/Rdata/charite_rd_2020_final.Rdata")
 data <- charite_rd_2020_final
-
 
 fig <- data %>%
   plot_ly(y = ~fuji_percent, color = ~repository_type, type = 'violin')
@@ -57,8 +55,8 @@ sub2 <- data %>%
 p <- subplot(sub1, sub2, titleX = TRUE, shareY = TRUE) %>% layout(showlegend = TRUE) %>% plotly_build()
 
 # Save and load plot
-saveRDS(p, "output-charts/license_bar.rds")
-d <- readRDS("output-charts/license_bar.rds")
+saveRDS(p, "output/charts/license_bar.rds")
+d <- readRDS("output/charts/license_bar.rds")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly linked licenses ----
@@ -82,10 +80,10 @@ bubble <- shared_repo %>%
 
 licenses_linked <- subplot(bc, bubble) %>% highlight(on = "plotly_click", off = "plotly_doubleclick") %>% hide_legend()
 
-saveRDS(licenses_linked, "output-charts/licenses_linked.rds")
+saveRDS(licenses_linked, "output/charts/licenses_linked.rds")
 
 library(htmlwidgets)
-saveWidget(licenses_linked, "output-charts/licenses_linked.html", selfcontained = FALSE, libdir = "lib")
+saveWidget(licenses_linked, "output/charts/licenses_linked.html", selfcontained = FALSE, libdir = "lib")
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -202,8 +200,8 @@ fig <- plot_ly(
 )
 fig %>% layout(title = "Treemap Repositories")
 
-partial_bundle(fig) %>% saveWidget( "output-charts/p1.html", selfcontained = TRUE)
-saveWidget(fig, "output-charts/p1.html", selfcontained = FALSE, libdir = "lib")
+partial_bundle(fig) %>% saveWidget( "output/charts/p1.html", selfcontained = TRUE)
+saveWidget(fig, "output/charts/p1.html", selfcontained = FALSE, libdir = "lib")
 library(htmlwidgets)
 fig
 
@@ -611,9 +609,9 @@ box_1 <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
     list(x = 0.1 , y = 1, text = "field-specific repository", showarrow = F, xref='paper', yref='paper'),
     list(x = 0.9 , y = 1, text = "general-purpose repository", showarrow = F, xref='paper', yref='paper')))
 
-saveRDS(box_1, "output-charts/box_1.rds")
+saveRDS(box_1, "output/charts/box_1.rds")
 
-save(box_1, file = "output-charts/box_1.Rdata")
+save(box_1, file = "output/charts/box_1.Rdata")
 
 data %>%
   mutate(publisher_unpaywall = as.factor(publisher_unpaywall)) %>%

@@ -21,7 +21,7 @@ library(tm)
 library(xml2)
 
 
-load("output-Rdata/charite_rd_2020_join.Rdata")
+load("output/Rdata/charite_rd_2020_join.Rdata")
 source("R/01_rdm_ids.R")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -36,8 +36,8 @@ article_dois <- charite_rd_2020_clean %>%
 #                                         email = "jan.taubitz@charite.de",
 #                                         .progress = "text")
 # 
-# save(output_unpaywall, file = "output-Rdata/output_unpaywall.Rdata")
-load(file = "output-Rdata/output_unpaywall.Rdata")
+# save(output_unpaywall, file = "output/Rdata/output_unpaywall.Rdata")
+load(file = "output/Rdata/output_unpaywall.Rdata")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Load FoR table ----
@@ -65,11 +65,9 @@ output_unpaywall_longer <- output_unpaywall %>%
 # test <- output_unpaywall_longer %>%
 #   filter(issbn_1 != journal_issn_l)
   
-
 field_of_research_journals_longer <- field_of_research_journals %>%
   select(title, starts_with("issn_"), ends_with("_name")) %>%
   pivot_longer(cols = starts_with("issn_"), values_to = "issn", values_drop_na = TRUE)
-
 
 unpaywall_fo_r_join <- output_unpaywall_longer %>% 
   left_join(field_of_research_journals_longer, by = "issn") %>%
@@ -79,7 +77,6 @@ unpaywall_fo_r_join <- output_unpaywall_longer %>%
   select(-name) %>%
   group_by(doi) %>%
   sample_n(1)
-
 
 charite_rd_2020_join_2 <- charite_rd_2020_join %>%
   left_join(output_unpaywall %>% select(doi, journal_name, publisher), by = c("article" = "doi")) %>%
@@ -91,10 +88,8 @@ charite_rd_2020_join_2 <- charite_rd_2020_join %>%
   relocate(license_fuji = license, .after = guid_scheme_fuji) %>%
   rename(guid_fuji = guid)
 
-
 # Join with long dataframe
 # https://stackoverflow.com/questions/59987662/merge-two-data-frames-based-on-multiple-columns-in-r
-
 
 unpaywall_fo_r_join %>%
   group_by(fo_r) %>%
@@ -111,7 +106,6 @@ unpaywall_fo_r_join %>%
 
 # Use case for re3date analysis 
 # https://github.com/re3data/using_the_re3data_API/blob/main/re3data_API_certification_by_type.ipynb
-
 
 # Obtain re3data IDs of all repositories indexed in re3data
 re3data_request <- GET("http://re3data.org/api/v1/repositories")
@@ -173,8 +167,8 @@ l
 # Function xml_structure can be very useful for inspecting the structure of XML objects
 # xml_structure(repository_metadata_XML)
 
-save(repository_info, file = "output-Rdata/repository_info.Rdata")
-load("output-Rdata/repository_info.Rdata")
+save(repository_info, file = "output/Rdata/repository_info.Rdata")
+load("output/Rdata/repository_info.Rdata")
 
 repository_info <- repository_info %>%
   mutate_all(na_if, "")
@@ -185,7 +179,6 @@ repository_info <- repository_info %>% separate_rows(type, sep = "_AND_")
 
 repository_info2 <- repository_info %>% separate_rows(policyName, policyURL, sep = "_AND_") %>% 
   distinct()
-
 
 # Classification
 # https://www.dfg.de/en/dfg_profile/statutory_bodies/review_boards/subject_areas/index.jsp
@@ -213,7 +206,6 @@ rep <- repository_info %>%
          repository = str_replace_all(repository, pattern = " ", repl = "")) %>%
   clean_names()
 
-
 r3data_join <- rdata %>% left_join(rep, by = "repository", keep = TRUE) %>%
   select(-article, -repository_url, -repository_identifier) %>%
  # distinct(repository.x, .keep_all = TRUE) %>%
@@ -234,7 +226,7 @@ charite_rd_2020_join_3 <- charite_rd_2020_join_2 %>%
 
 charite_rd_2020_final <- charite_rd_2020_join_3
 
-save(charite_rd_2020_final, file = "output-Rdata/charite_rd_2020_final.Rdata")
+save(charite_rd_2020_final, file = "output/Rdata/charite_rd_2020_final.Rdata")
 
 save_data_xlsx(df = list(charite_rd_2020_final), name = "final_output_2020")
 

@@ -17,8 +17,8 @@ library(tidyverse)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Load GUIS from FUJI Assessment
-load("output-Rdata/fuji_guid.Rdata")
-write_csv(fuji_guid,"output-Rdata/fuji_guid.csv")
+load("output/Rdata/fuji_guid.Rdata")
+write_csv(fuji_guid,"output/Rdata/fuji_guid.csv")
 
 # Login to server with ssh jtaubitz@s-quest.bihealth.org
 # Password
@@ -42,7 +42,7 @@ ssh_exec_wait(session, command = "ls")
 path = "/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment/R/04_fair_evaluation_service_test.R"
 scp_upload(session, path)
 
-path_guid = "/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment/output-Rdata/fuji_guid.csv"
+path_guid = "/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment/output/Rdata/fuji_guid.csv"
 scp_upload(session, path_guid)
 
 # ssh_exec_wait(session, command = "-a /System/Applications/TextEdit.app 04_fair_evaluation_service_test.R")
@@ -53,9 +53,9 @@ ssh_exec_wait(session, command = "Rscript 04_fair_evaluation_service_test.R")
 # ssh_exec_wait(session, command = "Rscript testscript.R")
 
 # Download file
-path_out = "/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment/output-Rdata"
+path_out = "/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment/output/Rdata"
 scp_download(session, "fair_evaluation_list_test.Rdata", to = path_out)
-load("output-Rdata/fair_evaluation_list_test.Rdata")
+load("output/Rdata/fair_evaluation_list_test.Rdata")
 
 # scp_download(session, "hello.txt", to = tempdir())
 
