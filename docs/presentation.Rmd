@@ -28,12 +28,14 @@ DiagrammeR::grViz("digraph {
   }",
   height = 300)
 
-library(DiagrammeRsvg)
-library(xml2)
-f %>%
-  export_svg() %>%
-  read_xml() %>%
-  write_xml("output/charts/flow_1.svg")
+# Export Diagramme to svg or png
+# https://stackoverflow.com/questions/42737645/how-to-export-images-of-diagrammer-in-r
+# library(DiagrammeRsvg)
+# library(xml2)
+# f %>%
+#   export_svg() %>%
+#   read_xml() %>%
+#   write_xml("output/charts/flow_1.svg")
 ```
 
 #### Step 2. Querying article DOIs via Unpaywall API
