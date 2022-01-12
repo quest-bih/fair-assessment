@@ -27,6 +27,13 @@ DiagrammeR::grViz("digraph {
   rec1 -> rec2 -> rec3
   }",
   height = 300)
+
+library(DiagrammeRsvg)
+library(xml2)
+f %>%
+  export_svg() %>%
+  read_xml() %>%
+  write_xml("output/charts/flow_1.svg")
 ```
 
 #### Step 2. Querying article DOIs via Unpaywall API
@@ -57,7 +64,7 @@ dplyr::glimpse(output_unpaywall)
 In comparison, considerably more steps are required to perform an open data assessment.
 
 ```{r, echo = FALSE}
-DiagrammeR::grViz("digraph {
+f <- DiagrammeR::grViz("digraph {
   graph [layout = dot, rankdir = TB]
   
   node [shape = rectangle, fontname = Helvetica, color = white, style = filled, fillcolor = '#70acc0']        
@@ -74,6 +81,8 @@ DiagrammeR::grViz("digraph {
   rec1 -> rec2 -> rec3 -> rec4 -> rec5 -> rec6 -> rec7 -> rec8
   }",
   height = 600)
+
+ggsave("output/charts/flow_1.png", plot = f)
 ```
 
 #### Step 7. Final data table
