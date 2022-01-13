@@ -40,6 +40,46 @@ article_dois <- charite_rd_2020_clean %>%
 load(file = "output/Rdata/output_unpaywall.Rdata")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Get unpaywall data for all charite publications 2020----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+publications_charite <- read_csv("input/publications_charite.csv")
+
+publ_cha_2020 <- publications_charite %>%
+  select(doi, year) %>%
+  mutate(doi = str_to_lower(doi), doi = str_trim(doi)) %>%
+  filter(year == 2020) %>%
+  filter(!str_detect(doi, "^keine doi.*"))
+
+rd_cha_2020 <- charite_rd_2020_clean %>%
+  select(article) %>%
+  distinct() %>%
+  full_join(publ_cha_2020, by = c("article" = "doi")) %>%
+  distinct(article, .keep_all = TRUE)
+
+# output_unpaywall_publ_cha_2020 <- roadoi::oadoi_fetch(dois = rd_cha_2020$article,
+#                                         email = "jan.taubitz@charite.de",
+#                                         .progress = "text")
+# 
+# save(output_unpaywall_publ_cha_2020, file = "output/Rdata/output_unpaywall_publ_cha_2020.Rdata")
+load(file = "output/Rdata/output_unpaywall_publ_cha_2020.Rdata")
+
+output_unpaywall_publ_cha_2020_summary <- output_unpaywall_publ_cha_2020 %>%
+  count(publisher) %>%
+  mutate(publisher_prop_unpaywall = n / sum(n)) %>%
+  rename(publisher_n_unpaywall = n)
+
+# Problem: ca. 20 of the 260 analysed articles or not included in the publication list of Charité Medical Library
+# Some are correctly not included, some are falsely not included
+# Not charite doi?
+# 10.1021/acs.analchem.0c01273
+# 
+# Is Charite doi
+# 10.1016/j.jclinepi.2020.09.022
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Load FoR table ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -226,8 +266,15 @@ charite_rd_2020_join_3 <- charite_rd_2020_join_2 %>%
 
 charite_rd_2020_final <- charite_rd_2020_join_3
 
-save(charite_rd_2020_final, file = "output/Rdata/charite_rd_2020_final.Rdata")
+# Join final data with summarized publisher data from unpaywall
+charite_rd_2020_final <- charite_rd_2020_final %>%
+  left_join(output_unpaywall_publ_cha_2020_summary, by = c("publisher_unpaywall" = "publisher")) %>%
+  relocate(c(publisher_n_unpaywall, publisher_prop_unpaywall), .after = publisher_unpaywall)
 
+save(charite_rd_2020_final, file = "output/Rdata/charite_rd_2020_final.Rdata")
+load("output/Rdata/charite_rd_2020_final.Rdata")
+
+# Save final data to xlsx
 save_data_xlsx(df = list(charite_rd_2020_final), name = "final_output_2020")
 
 data_policy_2020 <- charite_rd_2020_join_3 %>%
