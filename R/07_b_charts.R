@@ -688,6 +688,123 @@ jour_od_bar_margin <- jour_od_bar %>%
     )
   )
 
+
+
+
+
+
+
+
+jour_od <- data %>%
+  distinct(article, .keep_all = TRUE) %>%
+  select(starts_with("journal")) %>%
+  group_by(journal_name_unpaywall) %>%
+  summarise(n = n(), 
+            journal_n_unpaywall = max(journal_n_unpaywall),
+            journal_prop_unpaywall = round(max(journal_prop_unpaywall), 4)) %>%
+  filter(journal_n_unpaywall >= 15) %>%
+  # mutate(publisher_unpaywall = replace(publisher_unpaywall, publisher_unpaywall == "Rockefeller University Press", "Rockefeller University Press\nN = 5")) %>%
+  mutate(journal_name_unpaywall = paste0(journal_name_unpaywall, "<br>n = ", journal_n_unpaywall, ", p = ", journal_prop_unpaywall)) %>%
+  mutate(prop_od = round(n / journal_n_unpaywall, 2)) %>%
+  mutate(prop_no_od = 1 - prop_od) %>%
+  # ungroup() %>%
+  mutate(journal_name_unpaywall = fct_reorder(journal_name_unpaywall, prop_od, .desc = TRUE)) %>%
+  pivot_longer(cols = starts_with("prop"))
+
+
+jour_od_bar <- jour_od %>%
+  plot_ly(x = ~value, y = ~journal_name_unpaywall, color = ~name, colors = pal_pub,
+          text = ~paste(value*100, "%"), textposition = 'inside', textangle = 0, textfont = list(color = "#ffffff")) %>%
+  add_bars() %>%
+  add_annotations(
+    x=0.005,
+    y=0,
+    xref = "x",
+    yref = "y",
+    text = "% not open data",
+    xanchor = 'left',
+    showarrow = FALSE,
+    font = list(color = "#ffffff")
+  ) %>%
+  add_annotations(
+    x=0.5,
+    y=0,
+    xref = "x",
+    yref = "y",
+    text = "% open data",
+    xanchor = 'left',
+    showarrow = FALSE,
+    font = list(color = "#ffffff")
+  ) %>%
+  layout(barmode = "stack",
+         title = FALSE,
+         xaxis = list( side = "top", title = FALSE, tickformat = ",.0%", zeroline = FALSE),
+         yaxis = list(autorange = "reversed", side = "right", title = FALSE, tickfont = list(size = 7)),
+         uniformtext = list(minsize = 6, mode = "hide")) %>% # legend = list(orientation = "h")) 
+  hide_legend() %>%
+  config(displayModeBar = FALSE)
+
+
+marg <- list(
+  l = 20,
+  r = 20,
+  b = 20,
+  t = 150,
+  pad = 4
+)
+
+jour_od_bar_margin_top <- jour_od_bar %>%
+  layout(
+    margin = marg,
+    paper_bgcolor = pal_bg,
+    plot_bgcolor = pal_bg,
+    title = FALSE,
+    annotations = list(
+      list(
+        x = 0 ,
+        y = 1.45,
+        text = "<b>Open Data</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(size = 15, color = "#2F3E4E", family = "Arial")
+      ),
+      list(
+        x = 0 ,
+        y = 1.30,
+        text = "<b>15</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 35,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      ),
+      list(
+        x = 0 ,
+        y = 1.15,
+        text = "articles or more were published in this journals by Charité authors in 2020",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 15,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      )
+    )
+  )
+
+
+
+
+
+
+
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Journal Classification FoR----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -88,6 +88,7 @@ partial_bundle(pub_od_bar_margin)
 
 ```{r}
 partial_bundle(jour_od_bar_margin)
+partial_bundle(jour_od_bar_margin_top)
 partial_bundle(jour_bar_freq)
 ```
 
