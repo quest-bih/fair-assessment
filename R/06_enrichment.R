@@ -69,6 +69,11 @@ output_unpaywall_publ_cha_2020_summary <- output_unpaywall_publ_cha_2020 %>%
   mutate(publisher_prop_unpaywall = n / sum(n)) %>%
   rename(publisher_n_unpaywall = n)
 
+output_unpaywall_jour_cha_2020_summary <- output_unpaywall_publ_cha_2020 %>%
+  count(journal_name) %>%
+  mutate(journal_prop_unpaywall = n / sum(n)) %>%
+  rename(journal_n_unpaywall = n)
+
 # Problem: ca. 20 of the 260 analysed articles or not included in the publication list of Charité Medical Library
 # Some are correctly not included, some are falsely not included
 # Not charite doi?
@@ -266,10 +271,12 @@ charite_rd_2020_join_3 <- charite_rd_2020_join_2 %>%
 
 charite_rd_2020_final <- charite_rd_2020_join_3
 
-# Join final data with summarized publisher data from unpaywall
+# Join final data with summarized publisher data and journal data from unpaywall
 charite_rd_2020_final <- charite_rd_2020_final %>%
   left_join(output_unpaywall_publ_cha_2020_summary, by = c("publisher_unpaywall" = "publisher")) %>%
-  relocate(c(publisher_n_unpaywall, publisher_prop_unpaywall), .after = publisher_unpaywall)
+  relocate(c(publisher_n_unpaywall, publisher_prop_unpaywall), .after = publisher_unpaywall) %>%
+  left_join(output_unpaywall_jour_cha_2020_summary, by = c("journal_name_unpaywall" = "journal_name")) %>%
+  relocate(c(journal_n_unpaywall, journal_prop_unpaywall), .after = journal_name_unpaywall)
 
 save(charite_rd_2020_final, file = "output/Rdata/charite_rd_2020_final.Rdata")
 load("output/Rdata/charite_rd_2020_final.Rdata")
