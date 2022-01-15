@@ -120,7 +120,7 @@ box_faceted_margin <- box_faceted %>%
       list(
         x = -0.08 ,
         y = 1.30,
-        text = "<b>16 %</b>",
+        text = "<b>18 %</b>",
         showarrow = F,
         xref = 'paper',
         yref = 'paper',
@@ -133,7 +133,7 @@ box_faceted_margin <- box_faceted %>%
       list(
         x = -0.08 ,
         y = 1.15,
-        text = "of datasets from 2020 are FAIR (i.e. FAIR score of 50 % or higher)",
+        text = "is the average FAIR score of open data published by Charité authors in 2020",
         showarrow = F,
         xref = 'paper',
         yref = 'paper',
@@ -355,6 +355,87 @@ licenses_bar_grouped <- data_license %>%
 
 #~paste0(round(perc*100, 1), "%")
 
+data_license <- data %>%
+  group_by(license_fuji, repository_type) %>%
+  summarise(n = n()) %>%
+  ungroup() %>%
+  complete(license_fuji, repository_type, fill = list(n = 0)) %>%
+  group_by(repository_type) %>%
+  mutate(perc = round(n/sum(n),3)) %>%
+  ungroup() %>%
+  mutate(has_license = case_when(license_fuji != "no license" ~ TRUE,
+                                 TRUE ~ FALSE)) %>%
+  mutate(rep_type_2 = case_when(repository_type == "field-specific repository" ~ paste0("field-specific repository\nn = ", sum(n[repository_type == "field-specific repository"])),
+                                repository_type == "general-purpose repository" ~ paste0("general-purpose repository\nn = ", sum(n[repository_type == "general-purpose repository"]))
+                                ))
+
+pal_license <- c("#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#879C9D") %>% setNames(levels(data_license$license_fuji))
+
+licenses_bar <- data_license %>%
+  plot_ly(x = ~perc, y = ~rep_type_2, color = ~license_fuji, colors = pal_license,
+          marker = list(line = list(color = 'rgb(8,48,107)',
+                                    width = 1))) %>%
+  add_bars(text = ~license_fuji, textposition = 'inside', insidetextanchor = "middle", textangle = 0, textfont = list(color = "#000000")) %>%
+  layout(barmode = "stack",
+         xaxis = list(title = FALSE, autorange = "reversed", side = "top", tickformat = ",.0%", zeroline = FALSE ),
+         yaxis = list(title = FALSE, side = "right"),
+         uniformtext = list(minsize = 8, mode = "hide")) %>%
+  hide_legend()
+
+marg <- list(
+  l = 20,
+  r = 20,
+  b = 20,
+  t = 150,
+  pad = 4
+)
+
+licenses_bar_marg <- licenses_bar %>%
+  layout(
+    margin = marg,
+    paper_bgcolor = pal_bg,
+    plot_bgcolor = pal_bg,
+    title = FALSE,
+    annotations = list(
+      list(
+        x = 0 ,
+        y = 1.45,
+        text = "<b>Open Data</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(size = 15, color = "#2F3E4E", family = "Arial")
+      ),
+      list(
+        x = 0 ,
+        y = 1.30,
+        text = "<b>51 %</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 35,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      ),
+      list(
+        x = 0 ,
+        y = 1.15,
+        text = "of research data sets published in general-purpose repositories in 2020 have an open license",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 15,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      )
+    )
+  )
+
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Resource Identifier ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -472,22 +553,22 @@ pub_od_bar <- pub_od %>%
           text = ~paste(value*100, "%"), textposition = 'inside', textangle = 0, textfont = list(color = "#ffffff")) %>%
   add_bars() %>%
   add_annotations(
-    x=0.005,
+    x=0.2,
     y=1,
     xref = "x",
     yref = "y",
-    text = "% not open data",
-    xanchor = 'left',
+    text = "without open data",
+    xanchor = 'center',
     showarrow = FALSE,
     font = list(color = "#ffffff")
   ) %>%
   add_annotations(
-    x=0.5,
+    x=0.75,
     y=1,
     xref = "x",
     yref = "y",
-    text = "% open data",
-    xanchor = 'left',
+    text = "with open data",
+    xanchor = 'center',
     showarrow = FALSE,
     font = list(color = "#ffffff")
   ) %>%
@@ -607,22 +688,22 @@ jour_od_bar <- jour_od %>%
           text = ~paste(value*100, "%"), textposition = 'inside', textangle = 0, textfont = list(color = "#ffffff")) %>%
   add_bars() %>%
   add_annotations(
-    x=0.005,
+    x=0.25,
     y=5,
     xref = "x",
     yref = "y",
-    text = "% not open data",
-    xanchor = 'left',
+    text = "without open data",
+    xanchor = 'center',
     showarrow = FALSE,
     font = list(color = "#ffffff")
   ) %>%
   add_annotations(
-    x=0.5,
+    x=0.75,
     y=5,
     xref = "x",
     yref = "y",
-    text = "% open data",
-    xanchor = 'left',
+    text = "with open data",
+    xanchor = 'center',
     showarrow = FALSE,
     font = list(color = "#ffffff")
   ) %>%
@@ -699,10 +780,14 @@ jour_od <- data %>%
   distinct(article, .keep_all = TRUE) %>%
   select(starts_with("journal")) %>%
   group_by(journal_name_unpaywall) %>%
+#  mutate(journal_name_unpaywall = case_when(journal_n_unpaywall >= 16 ~ journal_name_unpaywall,
+ #                                           journal_n_unpaywall <= 15 ~ "Other Journals",
+  #                                          TRUE ~ journal_name_unpaywall)) %>%
+  mutate(journal_n_unpaywall = replace(journal_n_unpaywall, journal_name_unpaywall == "Other Journals", sum(journal_n_unpaywall))) %>%
   summarise(n = n(), 
             journal_n_unpaywall = max(journal_n_unpaywall),
             journal_prop_unpaywall = round(max(journal_prop_unpaywall), 4)) %>%
-  filter(journal_n_unpaywall >= 15) %>%
+  filter(journal_n_unpaywall >= 16) %>%
   # mutate(publisher_unpaywall = replace(publisher_unpaywall, publisher_unpaywall == "Rockefeller University Press", "Rockefeller University Press\nN = 5")) %>%
   mutate(journal_name_unpaywall = paste0(journal_name_unpaywall, "<br>n = ", journal_n_unpaywall, ", p = ", journal_prop_unpaywall)) %>%
   mutate(prop_od = round(n / journal_n_unpaywall, 2)) %>%
@@ -717,22 +802,22 @@ jour_od_bar <- jour_od %>%
           text = ~paste(value*100, "%"), textposition = 'inside', textangle = 0, textfont = list(color = "#ffffff")) %>%
   add_bars() %>%
   add_annotations(
-    x=0.005,
+    x=0.25,
     y=0,
     xref = "x",
     yref = "y",
-    text = "% not open data",
-    xanchor = 'left',
+    text = "without open data",
+    xanchor = 'center',
     showarrow = FALSE,
     font = list(color = "#ffffff")
   ) %>%
   add_annotations(
-    x=0.5,
+    x=0.75,
     y=0,
     xref = "x",
     yref = "y",
-    text = "% open data",
-    xanchor = 'left',
+    text = "with open data",
+    xanchor = 'center',
     showarrow = FALSE,
     font = list(color = "#ffffff")
   ) %>%

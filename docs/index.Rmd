@@ -59,6 +59,7 @@ partial_bundle(violin)
 # licenses_linked
 
 partial_bundle(licenses_bar_grouped)
+partial_bundle(licenses_bar_marg)
 
 
 ```
