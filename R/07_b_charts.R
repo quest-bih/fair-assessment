@@ -1010,35 +1010,72 @@ licenses_linked
 # Plotly FUJI v FAIR Enough ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-shared_repo <- data %>% SharedData$new(key = ~repository_type)
+shared_repo <- data %>% SharedData$new(key = ~ repository_type)
 
 bc <- shared_repo %>%
   plot_ly() %>%
   group_by(repository_type) %>%
   summarise(n = n()) %>%
-  add_bars(y = ~repository_type, x = ~n,
-           text = ~repository_type, textposition = 'inside', size = 3,
-           marker = list(color = pal)) %>%
-  layout(barmode = "overlay", yaxis = list(showticklabels = FALSE)) %>%
-  layout(xaxis = list(title = "Number datasets", zeroline = FALSE),
-         yaxis = list(title = ""))
+  add_bars(
+    x = ~ repository_type,
+    y = ~ n,
+    text = ~ repository_type,
+    textposition = 'inside',
+    insidetextfont = list(color = "#ffffff"),
+    insidetextanchor = "start", 
+    textangle = 270,
+    size = 3,
+    marker = list(color = pal)
+  ) %>%
+  layout(barmode = "overlay",
+    xaxis = list(title = FALSE, zeroline = FALSE, showticklabels = FALSE),
+    yaxis = list(title = "Number datasets", zeroline = FALSE, side = "right")
+  )
 
 bubble <- shared_repo %>%
   plot_ly() %>%
   group_by(repository_re3data, repository_type) %>%
-  summarise(n = n(), fair_enough = mean(fair_enough_percent)/100, fuji = mean(fuji_percent)/100) %>%
-  add_markers(x = ~fuji, y = ~fair_enough, color = ~repository_type, colors = pal,
-              hoverinfo = "text", text = ~repository_re3data,
-              hovertemplate = paste(
-                "<b>%{text}</b><br><br>",
-                "FUJI: %{x}<br>",
-                "FAIR Enough: %{y}<br>"),
-              size = ~n, marker = list(sizemode = "diameter")) %>%
-  layout(xaxis = list(title = "FUJI Score", tickformat = ",.0%", zeroline = FALSE),
-         yaxis = list(title = "FAIR Enough Score", tickformat = ",.0%"))
+  summarise(
+    n = n(),
+    fair_enough = mean(fair_enough_percent) / 100,
+    fuji = mean(fuji_percent) / 100
+  ) %>%
+  add_markers(
+    x = ~ fuji,
+    y = ~ fair_enough,
+    size = ~ n,
+    color = ~ repository_type,
+    colors = pal,
+    hoverinfo = "text",
+    text = ~ repository_re3data,
+    hovertemplate = paste(
+      "<b>%{text}</b><br>",
+      "FUJI: %{x}<br>",
+      "FAIR Enough: %{y}",
+      "<extra></extra>"
+    ),
+    marker = list(sizemode = "diameter")
+  ) %>%
+  layout(
+    xaxis = list(
+      title = "FUJI Score",
+      tickformat = ",.0%",
+      zeroline = FALSE
+    ),
+    yaxis = list(title = "FAIR Enough Score", tickformat = ",.0%")
+  )
 
-scatter_fuji_fair <- subplot(bubble, bc, nrows = 2, heights = c(0.8, 0.2), titleX = TRUE, titleY = TRUE) %>% hide_legend() %>%
-  layout(title = "FAIR Score: FUJI vs. FAIR Enough")
+scatter_fuji_fair <-
+  subplot(
+    bubble,
+    bc,
+    nrows = 1,
+    widths = c(0.8, 0.2),
+    titleX = TRUE,
+    titleY = TRUE
+  ) %>% hide_legend() %>%
+  layout(title = "FAIR Score: FUJI vs. FAIR Enough") %>%
+  highlight(on = "plotly_hover", off = "plotly_doubleclick")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly Number of Datasets per Repository and FUJI Score Percent ----
