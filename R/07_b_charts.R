@@ -1179,7 +1179,7 @@ scatter_fuji_type <- subplot(bubble, bc, nrows = 2, heights = c(0.8, 0.2)) %>% h
 
 data_treemap <- data %>% 
   group_by(repository_re3data, repository_type) %>%
-  summarise(n = n(), fair_score = mean(fuji_percent, na.rm = TRUE)) %>%
+  summarise(n = n(), fair_score = round(mean(fuji_percent, na.rm = TRUE),1)) %>%
   ungroup()
 
 data_treemap_head <- data.frame(repository_re3data = unique(data_treemap$repository_type),
