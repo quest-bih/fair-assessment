@@ -65,6 +65,7 @@ data_2 <- data %>%
   mutate(value = value / 100) %>%
   drop_na(value)
 
+# Faceted box plot (not included)
 plot_1 <- data_2 %>%
   filter(repository_type == "field-specific repository") %>%
   plot_ly(x = ~name, y = ~value) %>%
@@ -90,7 +91,7 @@ box_faceted <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
   config(displayModeBar = FALSE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Test to copy dashboard plot style ----
+# Faceted box plot in dashboard style ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 marg <- list(
@@ -133,7 +134,7 @@ box_faceted_margin <- box_faceted %>%
       list(
         x = -0.08 ,
         y = 1.15,
-        text = "is the average FAIR score of open data published by Charité authors in 2020",
+        text = "is the average FAIR score of open data from Charité authors in 2020",
         showarrow = F,
         xref = 'paper',
         yref = 'paper',
@@ -146,17 +147,8 @@ box_faceted_margin <- box_faceted %>%
     )
   )
 
-box_faceted_margin
-
-#9C2E7A
-
-# font_t <- list(
-#   family = "sans serif",
-#   size = 14,
-#   color = 'blue')
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Test end ----
+# Grouped Box and Violin Plot ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 box_grouped <- data_2 %>%
@@ -205,21 +197,9 @@ bar_grouped <- data_2_sum %>%
          xaxis = list(title = FALSE)) %>%
   config(displayModeBar = FALSE)
 
-
-# data_2_sum %>%
-#   plot_ly(x = ~name, y = ~value, color = ~repository_type, colors = pal) %>%
-#   add_bars(opacity = 0.5,
-#            text = ~paste0(round(value*100, 0), "%"), textposition = 'outside', textangle = 0, textfont = list(color = "#000000")) %>%
-#   add_trace(data = data_2, x = ~name, y = ~value, color = ~repository_type, colors = pal,
-#               showlegend = TRUE, type = 'scatter', mode = "markers") %>%
-#   layout(barmode = "group",
-#          scattermode = "group", 
-#          title = "Grouped Bar Plot FAIRness by Repository Type",
-#          legend = list(orientation = "h"),
-#          yaxis = list(title = "Average FAIR Score according to F-UJI", tickformat = ",.0%"),
-#          xaxis = list(title = FALSE)) %>%
-#   config(displayModeBar = FALSE)
-
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Faceted Violin Plot ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 chart_violin_repository <- data_2 %>%
   ggplot(aes(x = name, y = value, fill = repository_type, group = name, 
@@ -265,7 +245,7 @@ chart_violin_repository_plotly <- chart_violin_repository_plotly %>%
       list(
         x = -0.08 ,
         y = 1.35,
-        text = "<b>16 %</b>",
+        text = "<b>18 %</b>",
         showarrow = F,
         xref = 'paper',
         yref = 'paper',
@@ -278,7 +258,7 @@ chart_violin_repository_plotly <- chart_violin_repository_plotly %>%
       list(
         x = -0.08 ,
         y = 1.20,
-        text = "of datasets from 2020 are FAIR (i.e. FAIR score of 50 % or higher)",
+        text = "is the average FAIR score of open data from Charité authors in 2020",
         showarrow = F,
         xref = 'paper',
         yref = 'paper',
@@ -291,12 +271,12 @@ chart_violin_repository_plotly <- chart_violin_repository_plotly %>%
     )
   )
   
-
 # Documentation Tooltip: 
 # https://stackoverflow.com/questions/38733403/edit-labels-in-tooltip-for-plotly-maps-using-ggplot2-in-r
 # https://github.com/tidyverse/ggplot2/issues/3749
 # https://stackoverflow.com/questions/40598011/how-to-customize-hover-information-in-ggplotly-object/40598524
 
+# Ungrouped / unfaceted box and violin plot (not included)
 box <- data_2 %>%
   plot_ly(x = ~ name, y = ~ value, type = "box",
           color = list(color = "#B6B6B6"),
@@ -310,7 +290,6 @@ box <- data_2 %>%
     xaxis = list(title = FALSE)
   ) %>%
   config(displayModeBar = FALSE)
-box
 
 violin <- data_2 %>%
   plot_ly(
@@ -1039,27 +1018,27 @@ bc <- shared_repo %>%
   summarise(n = n()) %>%
   add_bars(y = ~repository_type, x = ~n,
            text = ~repository_type, textposition = 'inside', size = 3,
-           marker = list(color = c("blue", "gray"))) %>%
+           marker = list(color = pal)) %>%
   layout(barmode = "overlay", yaxis = list(showticklabels = FALSE)) %>%
-  layout(xaxis = list(title = "Number datasets"),
+  layout(xaxis = list(title = "Number datasets", zeroline = FALSE),
          yaxis = list(title = ""))
 
 bubble <- shared_repo %>%
   plot_ly() %>%
   group_by(repository_re3data, repository_type) %>%
-  summarise(n = n(), fair_enough = mean(fair_enough_percent), fuji = mean(fuji_percent)) %>%
-  add_markers(x = ~fuji, y = ~fair_enough, color = ~repository_type, colors = c("blue", "gray"),
+  summarise(n = n(), fair_enough = mean(fair_enough_percent)/100, fuji = mean(fuji_percent)/100) %>%
+  add_markers(x = ~fuji, y = ~fair_enough, color = ~repository_type, colors = pal,
               hoverinfo = "text", text = ~repository_re3data,
               hovertemplate = paste(
                 "<b>%{text}</b><br><br>",
                 "FUJI: %{x}<br>",
                 "FAIR Enough: %{y}<br>"),
               size = ~n, marker = list(sizemode = "diameter")) %>%
-  layout(xaxis = list(title = "FUJI Score (%)"),
-         yaxis = list(title = "FAIR Enough Score (%)"))
+  layout(xaxis = list(title = "FUJI Score", tickformat = ",.0%", zeroline = FALSE),
+         yaxis = list(title = "FAIR Enough Score", tickformat = ",.0%"))
 
 scatter_fuji_fair <- subplot(bubble, bc, nrows = 2, heights = c(0.8, 0.2), titleX = TRUE, titleY = TRUE) %>% hide_legend() %>%
-  layout(title = "FUJI vs FAIR Enough")
+  layout(title = "FAIR Score: FUJI vs. FAIR Enough")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly Number of Datasets per Repository and FUJI Score Percent ----
@@ -1199,7 +1178,7 @@ treemap_chart <- data_treemap %>% plot_ly(
   values = ~n,
   type ="treemap",
   branchvalues = "total",
-  text = ~paste0("n = ", n, "<br>FAIR Score = ", fair_score, "%"),
+  text = ~paste0("n = ", n, "<br>avg. FAIR = ", fair_score, "%"),
   textinfo = "label+text",
   textfont = list(color = "white"),
   marker = list(colors = pal))

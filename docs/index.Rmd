@@ -6,91 +6,45 @@ date: "last update: `r format(Sys.time(), '%d %B %Y')`"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, 
-                      warning = FALSE)
+                      warning = FALSE,
+                      options(scipen=999))
 setwd("/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment")
 source("R/07_b_charts.R")
 ```
 
 ## Interactive visualizations with plotly
 
-### FAIR principles grouped/faceted by repository type
+### FAIR score by principle and repository type
 ```{r}
-
-#box_1 <- readRDS("output-charts/box_1.rds")
-# load("output-charts/box_1.Rdata")
-# 
-# partial_bundle(box_1)
-
-
-partial_bundle(box_grouped)
-
-partial_bundle(box_faceted)
 
 partial_bundle(box_faceted_margin)
 
-partial_bundle(violin_grouped)
-
 partial_bundle(chart_violin_repository_plotly)
 
-partial_bundle(bar_grouped)
-
-partial_bundle(bar_faceted)
-
-
-
-
-```
-
-### FAIR principles ungrouped and unfaceted
-
-```{r}
-partial_bundle(box)
-partial_bundle(violin)
 ```
 
 
 ### Licenses by repository type
 ```{r}
-# licenses_linked <- readRDS("output-charts/licenses_linked.rds")
-# partial_bundle(licenses_linked)
-# 
-# p <- readRDS("output-charts/license_bar.rds")
-# partial_bundle(p)
-# licenses_linked
 
-partial_bundle(licenses_bar_grouped)
 partial_bundle(licenses_bar_marg)
 
-
-```
-
-### Ressource identifiers by repository type
-
-```{r}
-partial_bundle(id_bar_grouped)
 ```
 
 ### Repositories
 
 ```{r}
+partial_bundle(treemap_chart_marg)
 partial_bundle(rep_bar_freq)
 partial_bundle(rep_bar_fair)
+
 ```
-
-### Publishers
-
-```{r}
-partial_bundle(pub_bar_freq)
-partial_bundle(pub_od_bar_margin)
-```
-
 
 ### Journals
 
 ```{r}
 partial_bundle(jour_od_bar_margin)
-partial_bundle(jour_od_bar_margin_top)
-partial_bundle(jour_bar_freq)
+
 ```
 
 ### Journal Classifications
@@ -99,8 +53,13 @@ partial_bundle(jour_bar_freq)
 partial_bundle(class_bar_freq)
 ```
 
+### Publishers
 
-### Completeness FAIR by FUJI and Fair Enough
+```{r}
+partial_bundle(pub_od_bar_margin)
+```
+
+### FAIR score FUJI versus Fair Enough
 ```{r}
 ### Completeness FAIR by FUJI and Fair Enough
 scatter_fuji_fair
@@ -108,31 +67,5 @@ scatter_fuji_fair
 ```
 
 
-```{r}
 
-
-# df1 = read.csv('https://raw.githubusercontent.com/plotly/datasets/718417069ead87650b90472464c7565dc8c2cb1c/sunburst-coffee-flavors-complete.csv')
-# 
-# 
-# fig <- plot_ly(
-#   type='treemap',
-#   ids=df1$ids,
-#   labels=df1$labels,
-#   parents=df1$parents
-#   )
-# 
-# partial_bundle(fig)
-```
-
-
-
-```{r}
-# ## Static visualizations with ggplot
-# chart_bar_license
-# chart_bar_count
-# chart_treemap_repository
-# chart_violin_repository
-
-partial_bundle(treemap_chart_marg)
-```
 
