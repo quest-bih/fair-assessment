@@ -15,7 +15,7 @@ library(plotly)
 library(tidyverse)
 
 
-load("output-Rdata/charite_rd_2020_final.Rdata")
+load("output/Rdata/charite_rd_2020_final.Rdata")
 
 data <- charite_rd_2020_final
 

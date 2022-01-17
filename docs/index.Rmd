@@ -132,5 +132,7 @@ scatter_fuji_fair
 # chart_bar_count
 # chart_treemap_repository
 # chart_violin_repository
+
+partial_bundle(treemap_chart_marg)
 ```
 

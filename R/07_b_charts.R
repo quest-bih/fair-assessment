@@ -1172,3 +1172,96 @@ scatter_fuji_type <- subplot(bubble, bc, nrows = 2, heights = c(0.8, 0.2)) %>% h
 #   labs(title = "Treemap of Repositories", subtitle = "(other repository is n < 10)")
 # 
 # 
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly Treemap ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_treemap <- data %>% 
+  group_by(repository_re3data, repository_type) %>%
+  summarise(n = n(), fair_score = mean(fuji_percent, na.rm = TRUE)) %>%
+  ungroup()
+
+data_treemap_head <- data.frame(repository_re3data = unique(data_treemap$repository_type),
+                    repository_type = NA,
+                    fair_score = NA,
+                    n = c(221, 82))
+
+data_treemap <- rbind(data_treemap_head, data_treemap)
+
+# runif to add column with random numbers between x and y
+# data_treemap <- data_treemap %>%
+#   mutate(x = round(runif(40, 0.1:0.5), 1))
+
+treemap_chart <- data_treemap %>% plot_ly(
+  labels = ~repository_re3data,
+  parents = ~repository_type,
+  values = ~n,
+  type ="treemap",
+  branchvalues = "total",
+  text = ~paste0("n = ", n, "<br>FAIR Score = ", fair_score, "%"),
+  textinfo = "label+text",
+  textfont = list(color = "white"),
+  marker = list(colors = pal))
+
+
+#   color = test$x
+#   marker = list(colorscale = 'Reds')
+#   marker = list(colors = pal, colorscale = test$x)
+
+#fig %>% layout(treemapcolorway= pal)
+
+# fig %>% layout(title = "Treemap Repositories")
+
+marg <- list(
+  l = 20,
+  r = 20,
+  b = 20,
+  t = 150,
+  pad = 4
+)
+
+treemap_chart_marg <- treemap_chart %>%
+  layout(
+    margin = marg,
+    paper_bgcolor = pal_bg,
+    plot_bgcolor = pal_bg,
+  #  title = FALSE,
+    annotations = list(
+      list(
+        x = 0 ,
+        y = 1.45,
+        text = "<b>Open Data</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(size = 15, color = "#2F3E4E", family = "Arial")
+      ),
+      list(
+        x = 0 ,
+        y = 1.30,
+        text = "<b>73 %</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 35,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      ),
+      list(
+        x = 0 ,
+        y = 1.15,
+        text = "of open data by Charité authors were published in field-specific repositories in 2020",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 15,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      )
+    )
+  )

@@ -18,14 +18,6 @@ library(tidyverse)
 load("output/Rdata/charite_rd_2020_final.Rdata")
 data <- charite_rd_2020_final
 
-fig <- data %>%
-  plot_ly(y = ~fuji_percent, color = ~repository_type, type = 'violin')
-
-data %>%
-  plot_ly(y = ~fuji_percent, color = ~repository_type) %>%
-  add_boxplot() %>%
-  hide_legend()
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Plotly licenses ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -190,15 +182,96 @@ test2 <- data.frame(repository_re3data = unique(test$repository_type),
 
 test <- rbind(test2, test)
 
+test <- test %>%
+  mutate(color = "#879C9D") %>%
+  mutate(x = round(runif(40, 0.1:0.5), 1))
+
+
+test %>% plot_ly(
+  labels = ~repository_re3data,
+  parents = ~repository_type,
+  values = ~n,
+  type ="treemap",
+  branchvalues = 'total',
+  text = ~paste0(x, " % FAIR Score"),
+  textinfo = "label+value+text",
+  textfont = list(color = "white"),
+  marker = list(colors = pal))
+
+# https://plotly.com/r/reference/treemap/
+
+
 fig <- plot_ly(
   labels = test$repository_re3data,
   parents = test$repository_type,
   values = test$n,
   type ="treemap",
   branchvalues = 'total',
-  textinfo="label+value"
-)
+  textinfo = "label+value",
+  marker = list(colors = pal))
+
+#   color = test$x
+#   marker = list(colorscale = 'Reds')
+#   marker = list(colors = pal, colorscale = test$x)
+
+fig %>% layout(treemapcolorway= pal)
+
 fig %>% layout(title = "Treemap Repositories")
+
+fig %>% layout(font = list(color = "#ffffff"))
+
+marg <- list(
+  l = 20,
+  r = 20,
+  b = 20,
+  t = 150,
+  pad = 4
+)
+
+fig %>%
+  layout(
+    margin = marg,
+    paper_bgcolor = pal_bg,
+    plot_bgcolor = pal_bg,
+    title = FALSE,
+    annotations = list(
+      list(
+        x = 0 ,
+        y = 1.45,
+        text = "<b>Open Data</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(size = 15, color = "#2F3E4E", family = "Arial")
+      ),
+      list(
+        x = 0 ,
+        y = 1.30,
+        text = "<b>73 %</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 35,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      ),
+      list(
+        x = 0 ,
+        y = 1.15,
+        text = "of open data by Charité authors in 2020 was published in field-specific repositories",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 15,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      )
+    )
+  )
 
 partial_bundle(fig) %>% saveWidget( "output/charts/p1.html", selfcontained = TRUE)
 saveWidget(fig, "output/charts/p1.html", selfcontained = FALSE, libdir = "lib")
