@@ -249,7 +249,7 @@ chart_violin_repository <- data_2 %>%
               scale = "width",
               na.rm = TRUE) +
   geom_jitter(
-    height = 0.02,
+    height = 0.015,
     width = 0.45,
     size = 0.5,
     shape = 21,
@@ -284,7 +284,8 @@ chart_violin_repository_plotly <- ggplotly(chart_violin_repository,
   layout(title = "Faceted Violin Plot FAIRness by Repository Type",
          yaxis = list(
            title = list(text = "FAIR score according to F-UJI", font = list(size = 12)),
-           tickformat = ",.0%"))
+           tickformat = ",.0%"
+         ))
 
 
 chart_violin_repository_plotly <- chart_violin_repository_plotly %>%
@@ -409,12 +410,20 @@ data_license <- data %>%
                                 repository_type == "general-purpose repository" ~ paste0("general-purpose repository\nn = ", sum(n[repository_type == "general-purpose repository"]))
                                 ))
 
-pal_license <- c("#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#879C9D") %>% setNames(levels(data_license$license_fuji))
+# library(colortools)
+# sequential("#F1BA50", percentage = 100/12)
+
+test <- colorRampPalette(c("#F1C164", "#F19F00"))
+#scales::show_col(test(6))
+
+#pal_license <- c("#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#879C9D") %>% setNames(levels(data_license$license_fuji))
+
+pal_license <- c(rev(test(6)), "#879C9D") %>% setNames(levels(data_license$license_fuji))
 
 licenses_bar <- data_license %>%
   plot_ly(x = ~perc, y = ~rep_type_2, color = ~license_fuji, colors = pal_license,
-          marker = list(line = list(color = 'rgb(8,48,107)',
-                                    width = 1.5))) %>%
+          marker = list(line = list(color = "#000000",
+                                    width = 1))) %>%
   add_bars(text = ~license_fuji, textposition = 'inside', insidetextanchor = "middle", textangle = 0, textfont = list(color = "#ffffff")) %>%
   layout(barmode = "stack",
          xaxis = list(title = FALSE, autorange = "reversed", side = "top", tickformat = ",.0%", zeroline = FALSE),
@@ -1257,14 +1266,28 @@ scatter_fuji_type <- subplot(bubble, bc, nrows = 2, heights = c(0.8, 0.2)) %>% h
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_treemap <- data %>% 
-  group_by(repository_re3data, repository_type) %>%
-  summarise(n = n(), fair_score = round(mean(fuji_percent, na.rm = TRUE),1)) %>%
+  group_by(repository, repository_re3data, repository_type) %>%
+  summarise(n = n(), 
+            fair_score = round(mean(fuji_percent, na.rm = TRUE),1),
+            f_score = round(mean(fuji_percent_f, na.rm = TRUE),1),
+            a_score = round(mean(fuji_percent_a, na.rm = TRUE),1),
+            i_score = round(mean(fuji_percent_i, na.rm = TRUE),1),
+            r_score = round(mean(fuji_percent_r, na.rm = TRUE),1)
+            ) %>%
   ungroup()
 
-data_treemap_head <- data.frame(repository_re3data = unique(data_treemap$repository_type),
-                    repository_type = NA,
-                    fair_score = NA,
-                    n = c(221, 82))
+data_treemap_head <-
+  data.frame(
+    repository = unique(data_treemap$repository_type),
+    repository_re3data = NA,
+    repository_type = NA,
+    fair_score = NA,
+    f_score = NA,
+    a_score = NA,
+    i_score = NA,
+    r_score = NA,
+    n = c(221, 82)
+  )
 
 data_treemap <- rbind(data_treemap_head, data_treemap)
 
@@ -1273,16 +1296,21 @@ data_treemap <- rbind(data_treemap_head, data_treemap)
 #   mutate(x = round(runif(40, 0.1:0.5), 1))
 
 treemap_chart <- data_treemap %>% plot_ly(
-  labels = ~repository_re3data,
+  labels = ~repository,
   parents = ~repository_type,
   values = ~n,
   type ="treemap",
   branchvalues = "total",
-  text = ~paste0("n = ", n, "<br>avg. FAIR = ", fair_score, "%"),
   textinfo = "label+text",
-  textfont = list(color = "white"),
+  text = ~paste0(
+                 "F: ", f_score, "%",
+                 "<br>A: ", a_score, "%",
+                 "<br>I:  ", i_score, "%",
+                 "<br>R: ", r_score, "%"),
+  hoverinfo = "text",
+  hovertext = ~paste0("<b>", repository_re3data, "</b><br>", "n: ", n, "<br>avg. FAIR: ", fair_score, "%"),
+  textfont = list(color = "white", family = "PT Sans Narrow"),
   marker = list(colors = pal)) 
-
 
 #   color = test$x
 #   marker = list(colorscale = 'Reds')
