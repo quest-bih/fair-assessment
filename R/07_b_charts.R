@@ -68,26 +68,53 @@ data_2 <- data %>%
 # Faceted box plot (not included)
 plot_1 <- data_2 %>%
   filter(repository_type == "field-specific repository") %>%
-  plot_ly(x = ~name, y = ~value) %>%
-  add_boxplot(name = "field-specific rep.", boxmean = TRUE,
-              color = list(color = "#879C9D"),
-              marker = list(color = "#879C9D"),
-              line = list(color = "#879C9D"))
+  plot_ly(x = ~ name, y = ~ value) %>%
+  add_boxplot(
+    name = "field-specific rep.",
+    boxmean = TRUE,
+    color = list(color = "#879C9D"),
+    marker = list(color = "#879C9D"),
+    line = list(color = "#879C9D")
+  ) %>%
+  layout(xaxis = list(tickprefix="<b>",ticksuffix ="</b>"))
 
 plot_2 <- data_2 %>%
   filter(repository_type == "general-purpose repository") %>%
-  plot_ly(x = ~name, y = ~value, color = "green") %>%
-  add_boxplot(name = "general-purpose rep.", boxmean = TRUE,
-              color = list(color = "#F1BA50"),
-              marker = list(color = "#F1BA50"),
-              line = list(color = "#F1BA50")) %>%
-  layout(title = "Faceted Box Plot FAIRness by Repository Type")
+  plot_ly(x = ~ name,
+          y = ~ value) %>%
+  add_boxplot(
+    name = "general-purpose rep.",
+    boxmean = TRUE,
+    color = list(color = "#F1BA50"),
+    marker = list(color = "#F1BA50"),
+    line = list(color = "#F1BA50")
+  ) %>%
+  layout(title = "Faceted Box Plot FAIRness by Repository Type",
+         xaxis = list(tickprefix="<b>",ticksuffix ="</b>"))
 
-box_faceted <- subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
-  layout(yaxis = list(tickformat = ",.0%", title = "FAIR Score according to F-UJI"),
-         annotations = list(
-           list(x = 0.1 , y = 1, text = "field-specific repository", showarrow = F, xref='paper', yref='paper'),
-           list(x = 0.9 , y = 1, text = "general-purpose repository", showarrow = F, xref='paper', yref='paper'))) %>%
+box_faceted <-
+  subplot(plot_1, plot_2, shareY = TRUE) %>% hide_legend() %>%
+  layout(
+    yaxis = list(tickformat = ",.0%", title = "FAIR Score according to F-UJI"),
+    annotations = list(
+      list(
+        x = 0.1 ,
+        y = 1,
+        text = "field-specific repository",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper'
+      ),
+      list(
+        x = 0.9 ,
+        y = 1,
+        text = "general-purpose repository",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper'
+      )
+    )
+  ) %>%
   config(displayModeBar = FALSE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -202,28 +229,62 @@ bar_grouped <- data_2_sum %>%
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 chart_violin_repository <- data_2 %>%
-  ggplot(aes(x = name, y = value, fill = repository_type, group = name, 
-             text = paste0("FAIR Principle: ", name, "<br>FAIR Score: ", round(value,1)*100, "%",
-                           "<br>Repository: ", repository_re3data))) +
+  ggplot(aes(
+    x = name,
+    y = value,
+    fill = repository_type,
+    group = name,
+    text = paste0(
+      "FAIR Principle: ",
+      name,
+      "<br>FAIR Score: ",
+      round(value, 1) * 100,
+      "%",
+      "<br>Repository: ",
+      repository_re3data
+    )
+  )) +
   #geom_boxplot() +
-  geom_violin(trim = TRUE, scale = "width", na.rm = TRUE) +
-  geom_jitter(height = 0.02, width = 0.45, size = 0.5, shape = 21, alpha = 0.2, color = "#000000", na.rm = TRUE) +
-  stat_summary(fun = mean, geom = "crossbar", width = 0.3, size = 0.25, color = "#000000", na.rm = TRUE) +
-  facet_wrap(~ repository_type) +
+  geom_violin(trim = TRUE,
+              scale = "width",
+              na.rm = TRUE) +
+  geom_jitter(
+    height = 0.02,
+    width = 0.45,
+    size = 0.5,
+    shape = 21,
+    alpha = 0.2,
+    color = "#000000",
+    na.rm = TRUE
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "crossbar",
+    width = 0.3,
+    size = 0.25,
+    color = "#000000",
+    na.rm = TRUE
+  ) +
+  facet_wrap( ~ repository_type) +
   theme_minimal() +
   labs(title = "FAIRness according to FUJI assessment") +
-  theme(legend.position = "none",
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        panel.grid.major = element_blank()) +
+  theme(
+    legend.position = "none",
+    axis.title.x = element_blank(),
+   # axis.text.x = element_text(face="bold"),
+    axis.title.y = element_blank(),
+    panel.grid.major = element_blank()
+  ) +
   scale_y_continuous(labels = scales::percent) +
   scale_fill_manual(values = pal)
 
 
 chart_violin_repository_plotly <- ggplotly(chart_violin_repository,
-         tooltip = "text") %>% #list("AB" = "name", "XY" = "value")
+                                           tooltip = "text") %>% #list("AB" = "name", "XY" = "value")
   layout(title = "Faceted Violin Plot FAIRness by Repository Type",
-         yaxis = list(title = list(text = "FAIR score according to F-UJI", font = list(size = 12)), tickformat = ",.0%"))
+         yaxis = list(
+           title = list(text = "FAIR score according to F-UJI", font = list(size = 12)),
+           tickformat = ",.0%"))
 
 
 chart_violin_repository_plotly <- chart_violin_repository_plotly %>%
@@ -353,13 +414,15 @@ pal_license <- c("#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50
 licenses_bar <- data_license %>%
   plot_ly(x = ~perc, y = ~rep_type_2, color = ~license_fuji, colors = pal_license,
           marker = list(line = list(color = 'rgb(8,48,107)',
-                                    width = 1))) %>%
-  add_bars(text = ~license_fuji, textposition = 'inside', insidetextanchor = "middle", textangle = 0, textfont = list(color = "#000000")) %>%
+                                    width = 1.5))) %>%
+  add_bars(text = ~license_fuji, textposition = 'inside', insidetextanchor = "middle", textangle = 0, textfont = list(color = "#ffffff")) %>%
   layout(barmode = "stack",
-         xaxis = list(title = FALSE, autorange = "reversed", side = "top", tickformat = ",.0%", zeroline = FALSE ),
+         xaxis = list(title = FALSE, autorange = "reversed", side = "top", tickformat = ",.0%", zeroline = FALSE),
          yaxis = list(title = FALSE, side = "right"),
          uniformtext = list(minsize = 8, mode = "hide")) %>%
   hide_legend()
+
+licenses_bar
 
 marg <- list(
   l = 20,
@@ -1218,7 +1281,7 @@ treemap_chart <- data_treemap %>% plot_ly(
   text = ~paste0("n = ", n, "<br>avg. FAIR = ", fair_score, "%"),
   textinfo = "label+text",
   textfont = list(color = "white"),
-  marker = list(colors = pal))
+  marker = list(colors = pal)) 
 
 
 #   color = test$x
