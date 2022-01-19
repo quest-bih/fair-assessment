@@ -413,12 +413,12 @@ data_license <- data %>%
 # library(colortools)
 # sequential("#F1BA50", percentage = 100/12)
 
-test <- colorRampPalette(c("#F1C164", "#F19F00"))
+pal_lic <- colorRampPalette(c("#F1C164", "#F19F00"))
 #scales::show_col(test(6))
-
 #pal_license <- c("#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#879C9D") %>% setNames(levels(data_license$license_fuji))
+pal_license <- c(rev(pal_lic(length(levels(data_license$license_fuji))-1)), "#879C9D") %>% setNames(levels(data_license$license_fuji))
 
-pal_license <- c(rev(test(6)), "#879C9D") %>% setNames(levels(data_license$license_fuji))
+
 
 licenses_bar <- data_license %>%
   plot_ly(x = ~perc, y = ~rep_type_2, color = ~license_fuji, colors = pal_license,
@@ -430,8 +430,6 @@ licenses_bar <- data_license %>%
          yaxis = list(title = FALSE, side = "right"),
          uniformtext = list(minsize = 8, mode = "hide")) %>%
   hide_legend()
-
-licenses_bar
 
 marg <- list(
   l = 20,
@@ -1303,14 +1301,22 @@ treemap_chart <- data_treemap %>% plot_ly(
   branchvalues = "total",
   textinfo = "label+text",
   text = ~paste0(
-                 "F: ", f_score, "%",
+                 "<span style='font-family:courier'>F: ", f_score, "%",
                  "<br>A: ", a_score, "%",
-                 "<br>I:  ", i_score, "%",
-                 "<br>R: ", r_score, "%"),
+                 "<br>I: ", i_score, "%",
+                 "<br>R: ", r_score, "%</span>"),
   hoverinfo = "text",
-  hovertext = ~paste0("<b>", repository_re3data, "</b><br>", "n: ", n, "<br>avg. FAIR: ", fair_score, "%"),
-  textfont = list(color = "white", family = "PT Sans Narrow"),
+  hovertext = ~paste0("<b>", repository_re3data, 
+                      "</b><br><span style='font-family:courier'>", "n: ", n, 
+                      "<br>FAIR: ", fair_score, "%",
+                      "<br>F: ", f_score, "%",
+                      "<br>A: ", a_score, "%",
+                      "<br>I: ", i_score, "%",
+                      "<br>R: ", r_score, "%</span>"),
+  textfont = list(color = "white"),
   marker = list(colors = pal)) 
+
+treemap_chart
 
 #   color = test$x
 #   marker = list(colorscale = 'Reds')
