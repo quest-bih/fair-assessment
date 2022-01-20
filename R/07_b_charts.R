@@ -428,7 +428,7 @@ licenses_bar <- data_license %>%
   layout(barmode = "stack",
          xaxis = list(title = FALSE, autorange = "reversed", side = "top", tickformat = ",.0%", zeroline = FALSE),
          yaxis = list(title = FALSE, side = "right"),
-         uniformtext = list(minsize = 8, mode = "hide")) %>%
+         uniformtext = list(minsize = 8, mode = "hide"))  %>%
   hide_legend()
 
 marg <- list(
@@ -483,6 +483,127 @@ licenses_bar_marg <- licenses_bar %>%
       )
     )
   )
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# License Chart Talk EB ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+test <- data %>%
+  group_by(repository_re3data, license_fuji) %>%
+  count()
+
+# library(colortools)
+# sequential("#F1BA50", percentage = 100/20)
+
+pal_lic <- colorRampPalette(c("#F1DCB5", "#F19F00"))
+
+pal_lic <- colorRampPalette(c("#007265", "#F1C36C", "#F1BA50"))
+
+#scales::show_col(pal_lic(6))
+#pal_license <- c("#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#879C9D") %>% setNames(levels(data_license$license_fuji))
+pal_license <- c(rev(pal_lic(length(levels(data_license$license_fuji))-1)), "#879C9D") %>% setNames(levels(data_license$license_fuji))
+
+marg <- list(
+  pad = 10
+)
+
+
+licenses_bar <- data_license %>%
+  plot_ly(
+    x = ~ perc,
+    y = ~ rep_type_2,
+    color = ~ license_fuji,
+    colors = pal_license,
+    marker = list(line = list(color = "#000000",
+                              width = 1))
+  ) %>%
+  add_bars(
+    text = ~ license_fuji,
+    textposition = 'inside',
+    insidetextanchor = "middle",
+    textangle = 0,
+    textfont = list(color = "#ffffff", size = 14)
+  ) %>%
+  layout(
+    #margin = marg,
+    barmode = "stack",
+    xaxis = list(
+      title = FALSE,
+      side = "top",
+      tickformat = ",.0%"
+    ),
+    # , zerolinecolor = "#F7F7F7FF", zerolinewidth = 1
+    yaxis = list(title = FALSE),
+    uniformtext = list(minsize = 8, mode = "hide"),
+    legend = list(orientation = 'h', traceorder = "normal", x = -0.25)
+  )
+
+
+marg <- list(
+  l = 20,
+  r = 20,
+  b = 20,
+  t = 150,
+  pad = 10
+)
+
+licenses_bar_marg_2 <- licenses_bar %>%
+  layout(
+    margin = marg,
+    paper_bgcolor = pal_bg,
+    plot_bgcolor = pal_bg,
+    title = FALSE,
+    annotations = list(
+      list(
+        x = -0.35 ,
+        y = 1.6,
+        text = "<b>Open Data</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(size = 15, color = "#2F3E4E", family = "Arial")
+      ),
+      list(
+        x = -0.35 ,
+        y = 1.45,
+        text = "<b>51 %</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 35,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      ),
+      list(
+        x = -0.35 ,
+        y = 1.25,
+        text = "of research data sets published in general-purpose repositories in 2020 have an open license",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 15,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      )
+    )
+  )
+
+
+
+
+
+
+
+
+
+
+
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

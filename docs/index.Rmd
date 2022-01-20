@@ -29,6 +29,8 @@ partial_bundle(chart_violin_repository_plotly)
 
 partial_bundle(licenses_bar_marg)
 
+partial_bundle(licenses_bar_marg_2)
+
 ```
 
 ### Repositories
