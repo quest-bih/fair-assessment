@@ -364,7 +364,7 @@ chart_violin_repository <- test %>%
   geom_violin(trim = TRUE,
               scale = "width",
               na.rm = TRUE) +
-  geom_quasirandom(width=0.45, bandwidth = 0.2, varwidth= TRUE, size = 0.25, alpha = 1, shape = 21, method = "quasirandom", na.rm = TRUE, color = "#000000") +
+  geom_quasirandom(width=0.45, bandwidth = 0.2, varwidth= TRUE, size = 0.4, alpha = 0.4, shape = 21, method = "quasirandom", na.rm = TRUE, color = "#000000") +
   stat_summary(
     fun = mean,
     geom = "crossbar",
