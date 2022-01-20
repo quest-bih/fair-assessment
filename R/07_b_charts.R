@@ -439,7 +439,7 @@ chart_violin_repository_beeswarm_plotly <- chart_violin_repository_beeswarm_plot
         )
       )
     )
-  )
+  ) 
   
 # Documentation Tooltip: 
 # https://stackoverflow.com/questions/38733403/edit-labels-in-tooltip-for-plotly-maps-using-ggplot2-in-r
@@ -618,9 +618,6 @@ pal_lic <- colorRampPalette(c("#007265", "#F1BA50", "#AA493A")) # "#AA493A" #"#6
 #pal_license <- c("#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#879C9D") %>% setNames(levels(data_license$license_fuji))
 pal_license <- c(rev(pal_lic(length(levels(data_license$license_fuji))-1)), "#879C9D") %>% setNames(levels(data_license$license_fuji))
 
-marg <- list(
-  pad = 10
-)
 
 
 licenses_bar <- data_license %>%
@@ -650,7 +647,7 @@ licenses_bar <- data_license %>%
     # , zerolinecolor = "#F7F7F7FF", zerolinewidth = 1
     yaxis = list(title = FALSE, side = "right"),
     uniformtext = list(minsize = 8, mode = "hide"),
-    legend = list(orientation = 'h', traceorder = "normal", x = 0)
+    legend = list(orientation = 'h', traceorder = "normal", x = 1.2, xanchor = "right")
   )
 
 
@@ -659,7 +656,7 @@ marg <- list(
   r = 20,
   b = 20,
   t = 150,
-  pad = 10
+  pad = 4
 )
 
 licenses_bar_marg_2 <- licenses_bar %>%
