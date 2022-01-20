@@ -271,13 +271,14 @@ chart_violin_repository <- data_2 %>%
   theme(
     legend.position = "none",
     axis.title.x = element_blank(),
-   # axis.text.x = element_text(face="bold"),
+    # axis.text.x = element_text(face="bold"),
     axis.title.y = element_blank(),
     panel.grid.major = element_blank()
   ) +
   scale_y_continuous(labels = scales::percent) +
   scale_fill_manual(values = pal)
 
+chart_violin_repository
 
 chart_violin_repository_plotly <- ggplotly(chart_violin_repository,
                                            tooltip = "text") %>% #list("AB" = "name", "XY" = "value")
@@ -289,6 +290,113 @@ chart_violin_repository_plotly <- ggplotly(chart_violin_repository,
 
 
 chart_violin_repository_plotly <- chart_violin_repository_plotly %>%
+  layout(
+    margin = marg,
+    paper_bgcolor = pal_bg,
+    plot_bgcolor = pal_bg,
+    title = FALSE,
+    annotations = list(
+      list(
+        x = -0.08 ,
+        y = 1.45,
+        text = "<b>Open Data</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(size = 15, color = "#2F3E4E", family = "Arial")
+      ),
+      list(
+        x = -0.08 ,
+        y = 1.35,
+        text = "<b>18 %</b>",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 35,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      ),
+      list(
+        x = -0.08 ,
+        y = 1.20,
+        text = "is the average FAIR score of open data from Charité authors in 2020",
+        showarrow = F,
+        xref = 'paper',
+        yref = 'paper',
+        font = list(
+          size = 15,
+          color = "#9C2E7A",
+          family = "Arial"
+        )
+      )
+    )
+  )
+
+# Documentation Tooltip: 
+# https://stackoverflow.com/questions/38733403/edit-labels-in-tooltip-for-plotly-maps-using-ggplot2-in-r
+# https://github.com/tidyverse/ggplot2/issues/3749
+# https://stackoverflow.com/questions/40598011/how-to-customize-hover-information-in-ggplotly-object/40598524
+
+
+library(ggbeeswarm)
+
+test <- data_2 %>%
+  mutate(jitter = value+round(runif(nrow(.), -0.02, 0.02),3))
+
+chart_violin_repository <- test %>%
+  ggplot(aes(
+    x = name,
+    y = jitter,
+    fill = repository_type,
+    group = name,
+    text = paste0(
+      "FAIR Principle: ",
+      name,
+      "<br>FAIR Score: ",
+      round(value, 2) * 100,
+      "%",
+      "<br>Repository: ",
+      repository_re3data
+    )
+  )) +
+  geom_violin(trim = TRUE,
+              scale = "width",
+              na.rm = TRUE) +
+  geom_quasirandom(width=0.45, bandwidth = 0.2, varwidth= TRUE, size = 0.25, alpha = 1, shape = 21, method = "quasirandom", na.rm = TRUE, color = "#000000") +
+  stat_summary(
+    fun = mean,
+    geom = "crossbar",
+    width = 0.3,
+    size = 0.25,
+    color = "#000000",
+    na.rm = TRUE
+  ) +
+  facet_wrap( ~ repository_type) +
+  theme_minimal() +
+  labs(title = "FAIRness according to FUJI assessment") +
+  theme(
+    legend.position = "none",
+    axis.title.x = element_blank(),
+   # axis.text.x = element_text(face="bold"),
+    axis.title.y = element_blank(),
+    panel.grid.major = element_blank()
+  ) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = pal)
+
+
+chart_violin_repository_beeswarm_plotly <- ggplotly(chart_violin_repository,
+                                           tooltip = "text") %>% #list("AB" = "name", "XY" = "value")
+  layout(title = "Faceted Violin Plot FAIRness by Repository Type",
+         yaxis = list(
+           title = list(text = "FAIR score according to F-UJI", font = list(size = 12)),
+           tickformat = ",.0%"
+         ))
+
+
+chart_violin_repository_beeswarm_plotly <- chart_violin_repository_beeswarm_plotly %>%
   layout(
     margin = marg,
     paper_bgcolor = pal_bg,
@@ -501,6 +609,11 @@ pal_lic <- colorRampPalette(c("#F1DCB5", "#F19F00"))
 
 pal_lic <- colorRampPalette(c("#007265", "#F1C36C", "#F1BA50"))
 
+pal_lic <- colorRampPalette(c("#007265", "#F1BA50", "#AA493A")) # "#AA493A" #"#634587"
+
+# color brewer package
+# farbpaletten
+
 #scales::show_col(pal_lic(6))
 #pal_license <- c("#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#F1BA50", "#879C9D") %>% setNames(levels(data_license$license_fuji))
 pal_license <- c(rev(pal_lic(length(levels(data_license$license_fuji))-1)), "#879C9D") %>% setNames(levels(data_license$license_fuji))
@@ -535,9 +648,9 @@ licenses_bar <- data_license %>%
       tickformat = ",.0%"
     ),
     # , zerolinecolor = "#F7F7F7FF", zerolinewidth = 1
-    yaxis = list(title = FALSE),
+    yaxis = list(title = FALSE, side = "right"),
     uniformtext = list(minsize = 8, mode = "hide"),
-    legend = list(orientation = 'h', traceorder = "normal", x = -0.25)
+    legend = list(orientation = 'h', traceorder = "normal", x = 0)
   )
 
 
@@ -557,7 +670,7 @@ licenses_bar_marg_2 <- licenses_bar %>%
     title = FALSE,
     annotations = list(
       list(
-        x = -0.35 ,
+        x = 0 ,
         y = 1.6,
         text = "<b>Open Data</b>",
         showarrow = F,
@@ -566,7 +679,7 @@ licenses_bar_marg_2 <- licenses_bar %>%
         font = list(size = 15, color = "#2F3E4E", family = "Arial")
       ),
       list(
-        x = -0.35 ,
+        x = 0 ,
         y = 1.45,
         text = "<b>51 %</b>",
         showarrow = F,
@@ -579,7 +692,7 @@ licenses_bar_marg_2 <- licenses_bar %>%
         )
       ),
       list(
-        x = -0.35 ,
+        x = 0 ,
         y = 1.25,
         text = "of research data sets published in general-purpose repositories in 2020 have an open license",
         showarrow = F,

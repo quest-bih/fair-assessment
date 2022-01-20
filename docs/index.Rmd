@@ -17,9 +17,9 @@ source("R/07_b_charts.R")
 ### FAIR score by principle and repository type
 ```{r}
 
-partial_bundle(box_faceted_margin)
-
 partial_bundle(chart_violin_repository_plotly)
+
+partial_bundle(chart_violin_repository_beeswarm_plotly)
 
 ```
 
