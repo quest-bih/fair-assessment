@@ -604,6 +604,10 @@ test <- data %>%
 
 # library(colortools)
 # sequential("#F1BA50", percentage = 100/20)
+# sequential("#FC4E2A", percentage = 100/20)
+
+wheel("#F1BA50")
+
 
 pal_lic <- colorRampPalette(c("#F1DCB5", "#F19F00"))
 
