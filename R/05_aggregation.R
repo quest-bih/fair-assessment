@@ -78,11 +78,14 @@ fuji_license <-
   mutate(license = str_to_lower(license)) %>%
   mutate(
     license_2 = case_when(
-      str_detect(license, "by\\/4\\.0|cc-by") ~ "CC-BY",
       str_detect(license, "public domain") ~ "Public Domain",
       str_detect(license, "cc0") ~ "CC0",
-      str_detect(license, "by-nc-sa\\/") ~ "CC-BY-NC-SA",
-      str_detect(license, "by-nc\\/") ~ "CC-BY-NC",
+      str_detect(license, "by\\/4\\.0|cc-by") ~ "CC BY",
+      str_detect(license, "by-sa\\/") ~ "CC BY-SA",
+      str_detect(license, "by-nc\\/") ~ "CC BY-NC",
+      str_detect(license, "by-nc-sa\\/") ~ "CC BY-NC-SA",
+      str_detect(license, "by-nd\\/") ~ "CC BY-ND",
+      str_detect(license, "by-nc-nd\\/") ~ "CC BY-NC-ND",
       is.na(license) ~ "no license",
       TRUE ~ "other license"
     )
@@ -92,9 +95,12 @@ fuji_license <-
     levels = c(
       "Public Domain",
       "CC0",
-      "CC-BY",
-      "CC-BY-NC",
+      "CC BY",
+      "CC BY-SA",
+      "CC BY-NC",
       "CC-BY-NC-SA",
+      "CC BY-ND",
+      "CC BY-NC-ND",
       "other license",
       "no license"
     )
@@ -139,14 +145,16 @@ fair_enough_license <- map_dfr(
 fair_enough_license <- fair_enough_license %>%
   unite(license, matches("\\d+$"), sep = "_", remove = TRUE, na.rm = TRUE) %>%
   mutate(license = case_when(
-    str_detect(license, "by\\/4\\.0|cc-by") ~ "CC-BY",
-    str_detect(license, "cc0") ~ "CC0",
-    str_detect(license, "public?domain") ~ "Public Domain",
-    str_detect(license, "by-nc-sa\\/") ~ "CC-BY-NC-SA",
-    str_detect(license, "by-nc\\/") ~ "CC-BY-NC",
-    str_detect(license, "by-nc-nd\\/") ~ "CC-BY-NC-ND",
-    str_detect(license, "by-sa\\/") ~ "CC-BY-SA",
-    TRUE ~ "other license")) %>%
+      str_detect(license, "public?domain") ~ "Public Domain",
+      str_detect(license, "cc0") ~ "CC0",
+      str_detect(license, "by\\/4\\.0|cc-by") ~ "CC BY",
+      str_detect(license, "by-sa\\/") ~ "CC BY-SA",
+      str_detect(license, "by-nc\\/") ~ "CC BY-NC",
+      str_detect(license, "by-nc-sa\\/") ~ "CC BY-NC-SA",
+      str_detect(license, "by-nd\\/") ~ "CC BY-ND",
+      str_detect(license, "by-nc-nd\\/") ~ "CC BY-NC-ND",
+      TRUE ~ "other license"
+    )) %>%
   rename(license_fair_enough = license) %>%
   select(-score)
     

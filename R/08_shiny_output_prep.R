@@ -21,7 +21,17 @@ library(plotly)
 load("output/Rdata/charite_rd_2020_final.Rdata")
 
 fair_assessement <- charite_rd_2020_final %>%
-  select(article, repository, repository_re3data, repository_type, license_fuji)
+  select(
+    article,
+    best_identifier,
+    repository,
+    repository_re3data,
+    repository_type,
+    license_fuji,
+    fuji_percent_f,
+    fuji_percent_a,
+    fuji_percent_i,
+    fuji_percent_r)
 
 write_csv(fair_assessement, file = "output/fair_assessment.csv")
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
