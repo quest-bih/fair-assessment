@@ -1498,68 +1498,114 @@ scatter_fuji_type <- subplot(bubble, bc, nrows = 2, heights = c(0.8, 0.2)) %>% h
 # Plotly Treemap ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_treemap <- data %>% 
-  group_by(repository, repository_re3data, repository_type) %>%
-  summarise(n = n(), 
-            fair_score = round(mean(fuji_percent, na.rm = TRUE),1),
-            f_score = round(mean(fuji_percent_f, na.rm = TRUE),1),
-            a_score = round(mean(fuji_percent_a, na.rm = TRUE),1),
-            i_score = round(mean(fuji_percent_i, na.rm = TRUE),1),
-            r_score = round(mean(fuji_percent_r, na.rm = TRUE),1)
-            ) %>%
-  ungroup()
-
-data_treemap_head <-
-  data.frame(
-    repository = unique(data_treemap$repository_type),
-    repository_re3data = NA,
-    repository_type = NA,
-    fair_score = NA,
-    f_score = NA,
-    a_score = NA,
-    i_score = NA,
-    r_score = NA,
-    n = c(221, 82)
-  )
-
-data_treemap <- rbind(data_treemap_head, data_treemap)
 
 # runif to add column with random numbers between x and y
 # data_treemap <- data_treemap %>%
-#   mutate(x = round(runif(40, 0.1:0.5), 1))
+#   mutate(x = round(runif(42, 0.1:0.5), 1)) %>%
+#   mutate(hex = c("#879C9D", "#ffffff"))
+
+# Create function to combine round() and mean()
+rounded_mean <- compose(
+  partial(round, digits = 1),
+  partial(mean, na.rm = TRUE)
+)
+
+data_treemap_head_1 <- data %>%
+  summarise(n = n(), 
+            fair_score = rounded_mean(fuji_percent),
+            f_score = rounded_mean(fuji_percent_f),
+            a_score = rounded_mean(fuji_percent_a),
+            i_score = rounded_mean(fuji_percent_i),
+            r_score = rounded_mean(fuji_percent_r)
+  ) %>%
+  mutate(repository = "All repositories", .before = n) %>%
+  mutate(repository_re3data = "All repositories", .before = n)
+
+data_treemap_head <- data %>%
+  group_by(repository_type) %>%
+  summarise(n = n(), 
+            fair_score = rounded_mean(fuji_percent),
+            f_score = rounded_mean(fuji_percent_f),
+            a_score = rounded_mean(fuji_percent_a),
+            i_score = rounded_mean(fuji_percent_i),
+            r_score = rounded_mean(fuji_percent_r)
+            ) %>%
+  rename(repository = repository_type) %>%
+  mutate(repository_re3data = repository) %>%
+  mutate(repository_type = "All repositories")
+
+data_treemap <- data %>% 
+  group_by(repository, repository_re3data, repository_type) %>%
+  summarise(n = n(), 
+            fair_score = rounded_mean(fuji_percent),
+            f_score = rounded_mean(fuji_percent_f),
+            a_score = rounded_mean(fuji_percent_a),
+            i_score = rounded_mean(fuji_percent_i),
+            r_score = rounded_mean(fuji_percent_r)
+            ) %>%
+  ungroup()
+
+#data_treemap <- bind_rows(data_treemap_head, data_treemap)
+
+data_treemap <-
+  bind_rows(data_treemap_head_1, data_treemap_head, data_treemap) %>%
+  mutate(across(
+    where(is.character),
+    ~ case_when(
+      str_detect(., "field-specific repository") ~ "Disciplinary repositories",
+      str_detect(., "general-purpose repository") ~ "Other repositories",
+      TRUE ~ as.character(.)
+    )
+  ))
+
+# Prepare hovertext for str_glue()
+hovertext <-
+  c(
+    "<b>{repository_re3data}</b><span style='font-family:courier'>
+          n = {n}
+          FAIR = {fair_score}%
+          F = {f_score}%
+          A = {a_score}%
+          I = {i_score}%
+          R = {r_score}%</span>"
+  )
 
 treemap_chart <- data_treemap %>% plot_ly(
-  labels = ~repository,
-  parents = ~repository_type,
-  values = ~n,
-  type ="treemap",
+  labels = ~ repository,
+  parents = ~ repository_type,
+  values = ~ n,
+  type = "treemap",
   branchvalues = "total",
-  textinfo = "label+text",
-  text = ~paste0(
-                 "<span style='font-family:courier'>F: ", f_score, "%",
-                 "<br>A: ", a_score, "%",
-                 "<br>I: ", i_score, "%",
-                 "<br>R: ", r_score, "%</span>"),
+  textinfo = "label",
   hoverinfo = "text",
-  hovertext = ~paste0("<b>", repository_re3data, 
-                      "</b><br><span style='font-family:courier'>", "n: ", n, 
-                      "<br>FAIR: ", fair_score, "%",
-                      "<br>F: ", f_score, "%",
-                      "<br>A: ", a_score, "%",
-                      "<br>I: ", i_score, "%",
-                      "<br>R: ", r_score, "%</span>"),
-  textfont = list(color = "white"),
-  marker = list(colors = pal)) 
+  hovertext = ~ str_glue(hovertext),
+  #textfont = list(color = "white", size = 20),
+  marker = list(
+    colorscale = list(c(0, 0.5, 1), c("#AA493A", "#F1BA50", "#007265")), #cmin = 0, cmax = 1 
+    colors = ~ fair_score / 100,
+    showscale = TRUE,
+    line = list(color = color_palette[9], width = 1.5),
+    pad = list(b = 5, l = 5,r = 5,t = 25),
+    colorbar = list(title = "FAIR<br>Score",
+                    tickformat = ".0%",
+                    tickfont = list(size = 10)) # bgcolor = "green"
+  ),
+ pathbar = list(visible = FALSE),
+# root = list(color = color_palette[9]),
+ outsidetextfont=list(size=20),
+ insidetextfont=list(size=20, color= "#000000")
+) 
+
+
+treemap_chart <- treemap_chart %>% 
+  layout(paper_bgcolor = color_palette[9],
+         margin=list(l=0, r=0, b=10, t=0)) %>%
+  config(displayModeBar = FALSE) #  plot_bgcolor = pal_bg
 
 treemap_chart
 
-#   color = test$x
-#   marker = list(colorscale = 'Reds')
-#   marker = list(colors = pal, colorscale = test$x)
 
-#fig %>% layout(treemapcolorway= pal)
 
-# fig %>% layout(title = "Treemap Repositories")
 
 marg <- list(
   l = 20,
@@ -1613,3 +1659,26 @@ treemap_chart_marg <- treemap_chart %>%
       )
     )
   )
+
+labels_mat <- mapply(rep, 1:4, 4)
+labels <- paste0(LETTERS[as.vector(labels_mat)], as.vector(t(labels_mat)))
+
+parents_mat <- mapply(rep, 0:3, 4)
+parents <- gsub(".*0", "", paste0(LETTERS[as.vector(labels_mat)], as.vector(t(parents_mat))))
+
+values <- seq_along(parents)
+max_value <- max(values)
+
+palette <- colorRampPalette(c("green", "yellow", "red"), alpha=TRUE)(max_value)
+assigned_colors <- c(palette[cut(values, max_value)])
+
+# using marker.colors
+fig <- plot_ly(
+  type="treemap",
+  labels=labels,
+  parents=parents,
+  values = values,
+  marker=list(colors = assigned_colors),
+root = list(color = color_palette[9]))
+fig
+

@@ -156,8 +156,8 @@ unpaywall_fo_r_join %>%
 re3data_request <- GET("http://re3data.org/api/v1/repositories")
 re3data_IDs <- xml_text(xml_find_all(read_xml(re3data_request), xpath = "//id"))
 URLs <- paste("https://www.re3data.org/api/v1/repository/", re3data_IDs, sep = "")
-#URLs2 <- URLs[1:100]
-#URLs3 <- c("https://www.re3data.org/api/v1/repository/r3d100011137", "https://www.re3data.org/api/v1/repository/r3d100011137")
+#URLs <- URLs[1:100]
+#URLs <- c("https://www.re3data.org/api/v1/repository/r3d100011137", "https://www.re3data.org/api/v1/repository/r3d100011137")
 
 # Define what information about the repositories should be requested
 # re3data Metadata Schema: https://gfzpublic.gfz-potsdam.de/rest/items/item_758898_6/component/file_775891/content
@@ -174,7 +174,10 @@ extract_data <-
     "policyName",
     "policyURL",
     "dataLicenseName",
-    "pidSystem"
+    "pidSystem",
+    "dataAccessType", # added to filter re3data for Numbat workflow
+    "size", # added to filter re3data for Numbat workflow
+    "metadataStandardName" # added to filter re3data for Numbat workflow
   )
 
 # Create functions to request information about repositories
@@ -194,13 +197,12 @@ extract_repository_info <- function(url) {
   names(l)[i] <- extract_data[i]
   
   }
-  
 l 
-
 }
 
 # Gather detailed information about repositories
-# repository_info <- data.frame(matrix(ncol = 1, nrow = 0))
+
+# repository_info <- data.frame()
 # 
 # for (url in URLs) {
 #   repository_metadata_request <- GET(url)
@@ -218,15 +220,43 @@ load("output/Rdata/repository_info.Rdata")
 repository_info <- repository_info %>%
   mutate_all(na_if, "")
 
-repository_info <- repository_info %>% mutate_all(na_if, "")
-repository_info <- repository_info %>% mutate(certificate = ifelse(is.na(certificate), FALSE, TRUE))
-repository_info <- repository_info %>% separate_rows(type, sep = "_AND_")
+#repository_info <- repository_info %>% mutate(certificate = ifelse(is.na(certificate), FALSE, TRUE))
+#repository_info <- repository_info %>% separate_rows(type, sep = "_AND_")
 
 repository_info2 <- repository_info %>% separate_rows(policyName, policyURL, sep = "_AND_") %>% 
   distinct()
 
 # Classification
 # https://www.dfg.de/en/dfg_profile/statutory_bodies/review_boards/subject_areas/index.jsp
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Create semicolon-delimited string of repository names for numbat workflow ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Test with random characters
+
+# library(stringi)
+# string <- stri_rand_strings(1500, 10, pattern = "[a-z0-9]") %>%
+#   glue::glue_collapse(sep = ";")
+
+# Filter nach Life Sciences, und other repositories
+
+string <-
+  repository_info %>% 
+  filter(str_detect(subject, "21 Biology|22 Medicine")|str_detect(type, "other")) %>% 
+  filter(!is.na(repositoryIdentifier)) %>%
+  pull(repositoryName) %>% 
+  str_replace_all("[\r\n]" , "")  %>% 
+  str_squish() %>% 
+  #str_trunc(40) %>%  #, ellipsis = ""
+  #str_replace_all(pattern = " ", replacement = "-") %>% 
+  sort() %>%
+ # sample(size = 1000) %>% 
+  glue_collapse(sep = ";")
+
+test <- charite_rd_2020_final %>%
+  filter(!repository_re3data %in% string) %>%
+  pull(repository_re3data) %>%
+  unique()
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Join re3data ----

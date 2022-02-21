@@ -28,6 +28,7 @@ fair_assessement <- charite_rd_2020_final %>%
     repository_re3data,
     repository_type,
     license_fuji,
+    fuji_percent,
     fuji_percent_f,
     fuji_percent_a,
     fuji_percent_i,
