@@ -35,6 +35,26 @@ library(ssh)
 session <- ssh_connect("jtaubitz@s-quest.bihealth.org", passwd = "...")
 print(session)
 
+### TEST ###
+
+session <- ssh_connect("shiny@s-appserv1.bihealth.org", passwd = "sssbol")
+ssh_exec_wait(session, command = 'whoami')
+# remove file
+ssh_exec_wait(session, command = 'rm /data01/shinyapps/charite-dashboard-fair/Desktop/test.tsv')
+ssh_exec_wait(session, command = 'rm -rf /data01/shinyapps/charite-dashboard-fair/Desktop/')
+
+
+
+files_from = "/Users/jan/Desktop"
+
+files_from = "/Users/jan/Documents/OneDrive - Charité - Universitätsmedizin Berlin/_BIH/BUA-Dashboards/fair-assessment/R/04_b_fair_evaluation_service_on_server.R"
+files_to = "/data01/shinyapps/charite-dashboard-fair/Desktop"
+
+scp_upload(session, files = files_from, to = files_to)
+session
+ssh_disconnect(session)
+
+### END TEST ###
 # Commands
 ssh_exec_wait(session, command = "ls")
 

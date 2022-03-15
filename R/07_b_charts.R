@@ -719,18 +719,196 @@ licenses_bar_marg_2 <- licenses_bar %>%
 
 
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly Resource Identifier ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+data_id <- data %>%
+  group_by(guid_scheme_fuji, repository_type) %>%
+  summarise(n = n(), mean_fair_score = round(mean(fuji_percent, na.rm = TRUE), 1)) %>%
+  ungroup() %>%
+  complete(guid_scheme_fuji, repository_type, fill = list(n = 0)) %>%
+  group_by(repository_type) %>%
+  mutate(perc = round(n/sum(n),3)) %>%
+  ungroup() %>%
+  drop_na()
+
+hovertext <-
+  c("<b>{guid_scheme_fuji}</b>
+          FAIR: {round(mean_fair_score,1)}%
+          prop.: {perc*100}%
+          n: {n}")
+
+data_id %>%
+  plot_ly(
+    x = ~ perc,
+    y = ~ repository_type,
+    # color = ~ mean_fair_score,
+    #colors = c("#AA493A", "#F1BA50", "#007265"),
+    marker = list(
+      colorscale = list(c(0, 0.35, 1), c("#AA493A", "#F1BA50", "#007265")),
+      cmin = 0,
+      cmid = 0.35,
+      cmax = 1,
+      color = ~ mean_fair_score / 100,
+      showscale = TRUE,
+      line = list(color = "#ffffff", width = 0.5),
+      pad = list(b = 5, l = 5, r = 5, t = 25),
+      colorbar = list(
+        title = "FAIR<br>Score",
+        orientation = "h",
+        tickformat = ".0%",
+        tickfont = list(size = 10),
+        outlinecolor = "#ffffff"
+      )
+    ),
+    text = ~ guid_scheme_fuji,
+    textposition = "inside",
+    insidetextanchor = "middle",
+    textangle = "auto",
+    textfont = list(color = "auto", size = 18),
+    hoverinfo = "text",
+    hovertext = ~ str_glue(hovertext)
+  ) %>%
+  add_bars() %>%
+  layout(
+    barmode = 'stack',
+    xaxis = list(
+      title = FALSE,
+      side = "top",
+      tickformat = ",.0%"
+    ),
+    yaxis = list(title = FALSE,
+                 side = "left"),
+    uniformtext = list(minsize = 12, mode = "hide")
+  )
+
+
+data_id %>%
+  plot_ly(x = ~ repository_type, y = ~ perc) %>%
+  add_bars(
+    marker = list(
+      colorscale = list(c(0, 0.35, 1), c("#AA493A", "#F1BA50", "#007265")),
+      cmin = 0,
+      cmid = 0.35,
+      cmax = 1,
+      color = ~ mean_fair_score / 100,
+      showscale = TRUE)
+      #colorbar = list(title = "Avg.<br>FAIR<br>Score"))
+    ) %>% 
+  layout() %>% 
+  colorbar(title = "Concentration", x = 1, y = 0.5)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Plotly Resource Identifier Treemap ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# Create function to combine round() and mean()
+rounded_mean <- compose(
+  partial(round, digits = 1),
+  partial(mean, na.rm = TRUE)
+)
+
+data_treemap_head_1 <- data %>%
+  summarise(n = n(), fair_score = rounded_mean(fuji_percent)) %>%
+  mutate(guid_scheme_fuji = "All repositories", .before = n)
+
+data_treemap_head_2 <- data %>%
+  group_by(repository_type) %>%
+  summarise(n = n(), fair_score = rounded_mean(fuji_percent)) %>%
+  mutate(guid_scheme_fuji = repository_type) %>%
+  mutate(repository_type = "All repositories")
+
+data_treemap <- data %>% 
+  group_by(guid_scheme_fuji, repository_type) %>%
+  summarise(n = n(), fair_score = rounded_mean(fuji_percent)) %>%
+  ungroup() %>%
+  complete(guid_scheme_fuji, repository_type, fill = list(n =0, fair_score = 0))
+
+
+#data_treemap <- bind_rows(data_treemap_head, data_treemap)
+
+data_treemap <-
+  bind_rows(data_treemap_head_1, data_treemap_head_2, data_treemap) %>%
+  mutate(across(
+    where(is.character),
+    ~ case_when(
+      str_detect(., "field-specific repository") ~ "Disciplinary repositories",
+      str_detect(., "general-purpose repository") ~ "General-purpose rep.",
+      TRUE ~ as.character(.)
+    )
+  )) %>%
+  mutate(repository_type = case_when(str_detect(repository_type, "Disciplinary repositories") ~ "All repositories - Disciplinary repositories",
+                                     str_detect(repository_type, "General-purpose rep.") ~ "All repositories - General-purpose rep.",
+                                     TRUE ~ as.character(repository_type))) %>%
+  mutate(ids = paste0(repository_type, " - ", guid_scheme_fuji)) %>%
+  mutate(ids = str_remove(ids, "NA - ")) %>%
+  drop_na(guid_scheme_fuji)
+
+data_treemap %>% plot_ly(
+  ids = ~ ids,
+  labels = ~ guid_scheme_fuji,
+  parents = ~ repository_type,
+  values = ~ n,
+  type = "treemap",
+  branchvalues = "total",
+ # textinfo = "label",
+  #hoverinfo = "text",
+  #hovertext = ~ str_glue(hovertext),
+  #textfont = list(color = "white", size = 20),
+  marker = list(
+    colorscale = list(c(0, 0.35, 1), c("#AA493A", "#F1BA50", "#007265")), #cmin = 0, cmax = 1 
+    cmin = 0,
+    cmid = 0.35,
+    cmax = 1,
+    colors = ~ fair_score / 100,
+    showscale = TRUE,
+    line = list(color = color_palette[9], width = 1.5),
+    pad = list(b = 5, l = 5,r = 5,t = 25),
+    colorbar = list(title = "FAIR<br>Score",
+                    tickformat = ".0%",
+                    tickfont = list(size = 10)) # bgcolor = "green"
+  ),
+  pathbar = list(visible = FALSE),
+  # root = list(color = color_palette[9]),
+  outsidetextfont=list(size=20),
+  insidetextfont=list(size=20, color= "#000000")
+) 
+
+hovertext <-
+  c(
+    "<b>{guid_scheme_fuji}</b>
+          n = {n}
+          FAIR = {fair_score}%"
+  )
+
+data_treemap %>% plot_ly(
+  ids = ~ ids,
+  labels = ~ guid_scheme_fuji,
+  parents = ~ repository_type,
+  values = ~ n,
+  type = "sunburst",
+  branchvalues = "total",
+  hoverinfo = "text",
+  hovertext = ~ str_glue(hovertext),
+  marker = list(
+    colorscale = list(c(0, 0.35, 1), c("#AA493A", "#F1BA50", "#007265")), #cmin = 0, cmax = 1 
+    cmin = 0,
+    cmid = 0.35,
+    cmax = 1,
+    colors = ~ fair_score / 100,
+    showscale = TRUE,
+    colorbar = list(title = "FAIR<br>Score",
+                    tickformat = ".0%",
+                    tickfont = list(size = 10),
+                    outlinecolor = color_palette[9])))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Resource Identifier ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_id <- data %>%
-  group_by(guid_scheme_fuji, repository_type) %>%
-  summarise(n = n()) %>%
-  ungroup() %>%
-  complete(guid_scheme_fuji, repository_type, fill = list(n = 0)) %>%
-  mutate(perc = round(n/sum(n),3)) %>%
-  drop_na()
 
 id_bar_grouped <- data_id %>%
   plot_ly(x = ~guid_scheme_fuji, y = ~perc, color = ~repository_type, colors = pal) %>%
@@ -1682,3 +1860,240 @@ fig <- plot_ly(
 root = list(color = color_palette[9]))
 fig
 
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Sunburst FAIR principles ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data <- data %>%
+  select(
+    article,
+    best_identifier,
+    repository_re3data,
+    repository_type,
+    starts_with("fuji_percent"),
+    starts_with("FsF"))
+
+if (input$repository == "all repositories") {
+  data <- data
+} else if (input$repository == "disciplinary repositories") {
+  data <- data %>% filter(repository_type == "field-specific repository")
+} else if (input$repository == "general-purpose repository") {
+  data <- data %>% filter(repository_type == "general-purpose repositories")
+} else {
+  data <- data %>% filter(repository_re3data %in% input$repository_re3data)
+}
+
+val <- "sunburst"
+
+test <- data %>%
+  #  filter(repository_type == "field-specific repository") %>%
+ # filter(repository_re3data == "figshare") %>%
+  select(starts_with("fuji_percent"), starts_with("FsF")) %>%
+  #  group_by(repository_type, repository_re3data) %>%
+  summarise(across(where(is.numeric), ~ mean(.)), n = n()) %>%
+  pivot_longer(cols = c(starts_with("fuji_percent"), starts_with("FsF")))
+
+
+test <- data %>%
+#  filter(repository_type == "field-specific repository") %>%
+  filter(repository_re3data == "figshare") %>%
+  select(starts_with("fuji_percent"), starts_with("FsF")) %>%
+#  group_by(repository_type, repository_re3data) %>%
+  summarise(across(where(is.numeric), ~ mean(.)), n = n()) %>%
+  pivot_longer(cols = c(starts_with("fuji_percent"), starts_with("FsF"))) %>%
+  mutate(name = factor(
+    name,
+    levels = c(
+      "fuji_percent",
+      "fuji_percent_f",
+      "fuji_percent_a",
+      "fuji_percent_i",
+      "fuji_percent_r",
+      "fuji_percent_f1",
+      "fuji_percent_f2",
+      "fuji_percent_f3",
+      "fuji_percent_f4",
+      "fuji_percent_a1",
+      "fuji_percent_i1",
+      "fuji_percent_i3",
+      "fuji_percent_r1",
+      "fuji_percent_r1_1",
+      "fuji_percent_r1_2",
+      "fuji_percent_r1_3",
+      "FsF-F1-01D", "FsF-F1-02D", "FsF-F2-01M", "FsF-F3-01M", "FsF-F4-01M",
+      "FsF-A1-01M", "FsF-A1-02M", "FsF-A1-03D", 
+      "FsF-I1-01M", "FsF-I1-02M", "FsF-I3-01M",
+      "FsF-R1-01MD", "FsF-R1.1-01M", "FsF-R1.2-01M", "FsF-R1.3-01M", "FsF-R1.3-02D"
+    ),
+    labels = 
+      c("FAIR", "F", "A", "I", "R", 
+        "F1", "F2", "F3", "F4", 
+        "A1", 
+        "I1", "I3",
+        "R1", "R1.1", "R1.2", "R1.3",
+        "FsF-F1-01D", "FsF-F1-02D", "FsF-F2-01M", "FsF-F3-01M", "FsF-F4-01M",
+        "FsF-A1-01M", "FsF-A1-02M", "FsF-A1-03D", 
+        "FsF-I1-01M", "FsF-I1-02M", "FsF-I3-01M",
+        "FsF-R1-01MD", "FsF-R1.1-01M", "FsF-R1.2-01M", "FsF-R1.3-01M", "FsF-R1.3-02D")
+  )) %>%
+  arrange(name) %>%
+  mutate(parent = name) %>%
+  mutate(parent = str_replace(parent, "^FAIR$", NA_character_)) %>%
+  mutate(parent = str_replace(parent, "^[FAIR]$", "FAIR")) %>%
+  mutate(parent = str_replace_all(parent, "[0-9.]", "")) %>%
+  mutate(parent = case_when(str_detect(name, "^FsF.*") ~ as.character(str_extract(name, "(?<=-)(.*)(?=-)")),
+                            TRUE ~ parent)) %>%
+  mutate(score = c(24, 
+                   7, 3, 4, 10, 
+                   2, 2, 1, 2, 3, 3, 1, 4, 2, 2, 2,
+                   1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 4, 2, 2, 1, 1)) %>%
+  #mutate(name = factor(name, levels = rev(levels(name)))) %>%
+  mutate(name = if(val == "sunburst"){factor(name, levels = rev(levels(name)))}else{factor(name, levels = levels(name))}) %>%
+  arrange(name) %>%
+  mutate(principle = case_when(name == "FAIR" ~ "FAIR",
+                               name == "F" ~ "Findability",
+                               name == "A" ~ "Accessibility",
+                               name == "I" ~ "Interoperability",
+                               name == "R" ~ "Reusability",
+                               name == "F1" ~ "F1 — (Meta)data are assigned a globally unique and persistent identifier",
+                               name == "F2" ~ "F2 — Data are described with rich metadata (defined by R1 below)",
+                               name == "F3" ~ "F3 — Metadata clearly and explicitly include the identifier of the data they describe",
+                               name == "F4" ~ "F4 — (Meta)data are registered or indexed in a searchable resource",
+                               name == "A1" ~ "A1 — (Meta)data are retrievable by their identifier using a standardised communications protocol",
+                               name == "I1" ~ "I1 — (Meta)data use a formal, accessible, shared, and broadly applicable language for knowledge representation",
+                               name == "I3" ~ "I3 — (Meta)data include qualified references to other (meta)data",
+                               name == "R1" ~ "R1 — Meta(data) are richly described with a plurality of accurate and relevant attributes",
+                               name == "R1.1" ~ "R1.1 — (Meta)data are released with a clear and accessible data usage license",
+                               name == "R1.2" ~ "R1.2 — (Meta)data are associated with detailed provenance",
+                               name == "R1.3" ~ "R1.3 — (Meta)data meet domain-relevant community standards",
+                               name == "FsF-F1-01D" ~ "FsF-F1-01D — Data is assigned a globally unique identifier.",
+                               name == "FsF-F1-02D" ~ "FsF-F1-02D — Data is assigned a persistent identifier.", 
+                               name == "FsF-F2-01M" ~ "FsF-F2-01M — Metadata includes descriptive core elements (creator, title, data identifier, publisher, publication date, summary and keywords) to support data findability.", 
+                               name == "FsF-F3-01M" ~ "FsF-F3-01M — Metadata includes the identifier of the data it describes.",
+                               name == "FsF-F4-01M" ~ "FsF-F4-01M — Metadata is offered in such a way that it can be retrieved programmatically.",
+                               name == "FsF-A1-01M" ~ "FsF-A1-01M — Metadata contains access level and access conditions of the data.",
+                               name == "FsF-A1-02M" ~ "FsF-A1-02M — Metadata is accessible through a standardized communication protocol.",
+                               name == "FsF-A1-03D" ~ "FsF-A1-03D — Data is accessible through a standardized communication protocol.",
+                               name == "FsF-I1-01M" ~ "FsF-I1-01M — Metadata is represented using a formal knowledge representation language.",
+                               name == "FsF-I1-02M" ~ "FsF-I1-02M — Metadata uses semantic resources",
+                               name == "FsF-I3-01M" ~ "FsF-I3-01M — Metadata includes links between the data and its related entities.",
+                               name == "FsF-R1-01MD" ~ "FsF-R1-01MD — Metadata specifies the content of the data.",
+                               name == "FsF-R1.1-01M" ~ "FsF-R1.1-01M — Metadata includes license information under which data can be reused.",
+                               name == "FsF-R1.2-01M" ~ "FsF-R1.2-01M — Metadata includes provenance information about data creation or generation.",
+                               name == "FsF-R1.3-01M" ~ "FsF-R1.3-01M — Metadata follows a standard recommended by the target research community of the data.",
+                               name == "FsF-R1.3-02D" ~ "FsF-R1.3-02D — Data is available in a file format recommended by the target research community."
+                               )) %>%
+  mutate(principle = str_wrap(principle, width = 50))
+
+
+  
+# %>%
+#   mutate(name = as.character(name)) %>%
+#   mutate(across(c("name", "parent"), ~ case_when(. == "FAIR" ~ paste0("FAIR\n", round(last(value), 1),"%"),
+#                           TRUE ~ .)))
+
+
+hovertext <-
+  c(
+    "<b>{principle}</b>
+    Score = {round(value, 1)}%
+    Weight = {round(score/0.24, 1)}%"
+  )
+
+test %>% plot_ly(
+  labels = ~ name,
+  parents = ~ parent,
+  values = ~ score,
+  text = ~ paste0(round(value, 1),"%"),
+  type = "sunburst",
+  maxdepth = 3,
+  branchvalues = "total",
+  rotation = 90,
+  sort = FALSE,
+  hoverinfo = "text",
+  hovertext = ~ str_glue(hovertext),
+  textinfo = "label+text",
+  marker = list(
+    colorscale = list(c(0, 0.35, 1), c("#AA493A", "#F1BA50", "#007265")), #cmin = 0, cmax = 1
+    cmin = 0,
+    cmid = 0.35,
+    cmax = 1,
+    colors = ~ value / 100,
+    #showscale = TRUE,
+    line = list(color = "#000000", width = 1.5),
+    pad = list(b = 5, l = 5,r = 5,t = 25),
+    colorbar = list(title = "FAIR<br>Score",
+                    tickformat = ".0%",
+                    tickfont = list(size = 10)) # bgcolor = "green"
+  )
+) %>%
+  layout(
+    annotations = 
+      list(x = 0, y = -0.08, text = caption, 
+           align = "left",
+           showarrow = F, xref='paper', yref='paper', 
+           xanchor='auto', yanchor='auto', xshift=0, yshift=0,
+           font=list(size=10))
+  )
+  
+
+caption <- glue::glue("n = {n}
+                      Click on chart to see corresponding metrics
+                      Colors and labels correspond to the assessment scores
+                      Size of wedges correspond to the weight of the assessment sections", n = nrow(test))
+
+library(viridis)
+
+col_viridis <- rev(viridis(3))
+c("#AA493A", "#F1BA50", "#007265")
+rev(c("#440154FF", "#25858EFF", "#FDE725FF"))
+
+
+# test colors
+
+test2 <- test %>%
+  mutate(score = rev(c(24, 
+                   6,                          6,        6,            6, 
+                   1.5, 1.5, 1.5, 1.5,         6,        3, 3,         1.5, 1.5, 1.5, 1.5,
+                   0.75, 0.75, 1.5, 1.5, 1.5,  2, 2, 2,  1.5, 1.5, 3,  1.5, 1.5, 1.5, 0.75, 0.75)))
+
+
+test2 %>% plot_ly(
+  labels = ~ name,
+  parents = ~ parent,
+    values = ~ score,
+  text = ~ paste0(round(value, 0),"%"),
+  type = "sunburst",
+  opacity = ~value/100,
+  group=~ parent,
+  maxdepth = 3,
+  branchvalues = "total",
+  rotation = 90,
+  sort = FALSE,
+  hoverinfo = "text",
+  hovertext = ~ str_glue(hovertext),
+  textinfo = "label+text") %>%
+  # ,
+  # marker = list(
+  #   colorscale = list(c(0, 0.35, 1), c("#AA493A", "#F1BA50", "#007265")), #cmin = 0, cmax = 1
+  #   cmin = 0,
+  #   cmid = 0.35,
+  #   cmax = 1,
+  #   colors = ~ value / 100,
+  #   #showscale = TRUE,
+  #   line = list(color = "#000000", width = 1.5),
+  #   pad = list(b = 5, l = 5,r = 5,t = 25),
+  #   colorbar = list(title = "FAIR<br>Score",
+  #                   tickformat = ".0%",
+  #                   tickfont = list(size = 10)) # bgcolor = "green"
+  #)
+  layout(
+    annotations = 
+      list(x = 0, y = -0.08, text = caption, 
+           align = "left",
+           showarrow = F, xref='paper', yref='paper', 
+           xanchor='auto', yanchor='auto', xshift=0, yshift=0,
+           font=list(size=10))
+  )
+### END

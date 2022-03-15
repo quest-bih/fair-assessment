@@ -49,11 +49,17 @@ url_test_df <- url_test %>% tibble() %>% mutate(name = names(url_test)) %>% relo
 # FUJI data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+system2(command = "pwd")
+
+system2(command = "docker",
+        args    = c("ps -a"))
+
 # Function to query local FUJI server with guids
 fuji_local_server <- function(rd_id){
   
   headers = c(
     `accept` = 'application/json',
+   # `Authorization` = 'Basic dGVzdDp0ZXN0',
     `Content-Type` = 'application/json')
   
   data <- list(metadata_service_endpoint = "", 
@@ -65,17 +71,31 @@ fuji_local_server <- function(rd_id){
   
   res <- httr::POST(url = 'http://localhost:1071/fuji/api/v1/evaluate', httr::add_headers(.headers=headers), body = data, encode = "json")  
   
-  fuji_local_parsed <- content(res, as = "parsed")
-  
+  fuji_local_parsed <- content(res) # , as = "parsed" removed because it causes problems with some guids
+  return(fuji_local_parsed)
 }
+
+sample <- sample(charite_rd_2020_guid, 2)
+fuji_local_list <- map(sample, fuji_local_server)
+
+rate <- rate_delay(5)
+slow_fuji <-
+  slowly(fuji_local_server, rate = rate, quiet = FALSE)
+
+fuji_local_list <-
+  map(charite_rd_2020_guid, slow_fuji)
+
 
 # Query larger set of ids with map()
 fuji_local_list <- map(charite_rd_2020_guid, fuji_local_server)
 
 # Save data locally
-save(fuji_local_list, file = "output/Rdata/fuji_local_list.Rdata")
-load("output/Rdata/fuji_local_list.Rdata")
+save(fuji_local_list, file = "output/Rdata/fuji_local_list_2022_03_04.Rdata")
+load("output/Rdata/fuji_local_list_2022_03_04.Rdata")
 
+# Filter vector with dplyr 
+# https://stackoverflow.com/questions/44169164/dplyr-filter-on-a-vector-rather-than-a-dataframe-in-r
+# charite_rd_2020_guid %>% .[matches("qak8e", vars=.)]
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Extract only GUID to query FAIR Enough and Fair Evaluation Service ----

@@ -15,7 +15,7 @@ library(readxl)
 library(plotly)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Load final data and prepare it for shiny app ----
+# Load final data and prepare and export it for shiny app ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 load("output/Rdata/charite_rd_2020_final.Rdata")
@@ -28,11 +28,9 @@ fair_assessement <- charite_rd_2020_final %>%
     repository_re3data,
     repository_type,
     license_fuji,
-    fuji_percent,
-    fuji_percent_f,
-    fuji_percent_a,
-    fuji_percent_i,
-    fuji_percent_r)
+    guid_scheme_fuji,
+    starts_with("fuji_percent"),
+    starts_with("FsF"))
 
 write_csv(fair_assessement, file = "output/fair_assessment.csv")
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -91,3 +89,44 @@ plot_fair_license <- function(plot_data)
 }
 
 plot_fair_license(fair_assessement)
+
+library(tidyverse)
+library(plotly)
+library(quantmod)
+
+getSymbols("AAPL",src='yahoo')
+
+# basic example of ohlc charts
+df <- data.frame(Date=index(AAPL),coredata(AAPL))
+df <- tail(df, 30)
+
+maxi_dif <-  as.integer(which (df$diff == max(df$diff)))
+maxi_x <- df[maxi_dif,'Date']
+maxi_y <- df[maxi_dif,'diff']
+
+fig <- df %>% plot_ly(
+  x = ~ Date,
+  type = "candlestick",
+  open = ~ AAPL.Open,
+  close = ~ AAPL.Close,
+  high = ~ AAPL.High,
+  low = ~ AAPL.Low
+) %>%
+  add_trace(
+    data = df %>% filter(Date == "2022-01-28"),
+    x = ~ Date,
+    type = "candlestick",
+    open = ~ AAPL.Open,
+    close = ~ AAPL.Close,
+    high = ~ AAPL.High,
+    low = ~ AAPL.Low,
+    increasing = list(fillcolor = "Blue", line = list(color = "Blue")),
+    decreasing = list(fillcolors = "Blue", line = list(color = "Blue")),
+    showlegend = FALSE
+  )
+fig
+reprex::reprex()
+df %>% filter(Date == "2022-01-28")
+
+reprex::reprex(mean(rnorm(10)))
+

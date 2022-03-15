@@ -258,6 +258,14 @@ test <- charite_rd_2020_final %>%
   pull(repository_re3data) %>%
   unique()
 
+charite_rd_2020_final %>%
+  pull(repository_re3data) %>%
+  unique() %>%
+  str_replace_all("[\r\n]" , "")  %>% 
+  str_squish() %>% 
+  sort() %>%
+  glue::glue_collapse(sep = ";")
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Join re3data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
