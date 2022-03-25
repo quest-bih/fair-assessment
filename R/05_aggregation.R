@@ -16,7 +16,7 @@ library(tidyverse)
 # Load data
 source("R/01_rdm_ids.R")
 
-load("output/Rdata/fuji_local_list_2022_03_04.Rdata")
+load("output/Rdata/fuji_local_list_2022_03_25.Rdata")
 load("output/Rdata/fair_enough_list.Rdata")
 #load("output-Rdata/fair_evaluation_data.Rdata")
 load("output/Rdata/fuji_guid.Rdata")
@@ -180,7 +180,8 @@ fuji_license <-
   ))
 
 fuji_license <- fuji_license %>%
-  select(rd_id, license = license_2)
+  select(rd_id, license = license_2) %>%
+  distinct(rd_id, .keep_all = TRUE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Extract guid_scheme ----

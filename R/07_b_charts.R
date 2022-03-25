@@ -1897,7 +1897,7 @@ test <- data %>%
 
 test <- data %>%
 #  filter(repository_type == "field-specific repository") %>%
-  filter(repository_re3data == "figshare") %>%
+#  filter(repository_re3data == "figshare") %>%
   select(starts_with("fuji_percent"), starts_with("FsF")) %>%
 #  group_by(repository_type, repository_re3data) %>%
   summarise(across(where(is.numeric), ~ mean(.)), n = n()) %>%
@@ -2015,7 +2015,7 @@ test %>% plot_ly(
   hovertext = ~ str_glue(hovertext),
   textinfo = "label+text",
   marker = list(
-    colorscale = list(c(0, 0.35, 1), c("#AA493A", "#F1BA50", "#007265")), #cmin = 0, cmax = 1
+    colorscale = list(c(0, 0.35, 1), viridis(3)), #cmin = 0, cmax = 1
     cmin = 0,
     cmid = 0.35,
     cmax = 1,
@@ -2045,9 +2045,13 @@ caption <- glue::glue("n = {n}
 
 library(viridis)
 
-col_viridis <- rev(viridis(3))
+col_viridis <- rev(viridis(10))
 c("#AA493A", "#F1BA50", "#007265")
 rev(c("#440154FF", "#25858EFF", "#FDE725FF"))
+
+#color blind friendly
+
+dashboard_colors <- c("#634587", "#F1BA50", "#007265")
 
 
 # test colors

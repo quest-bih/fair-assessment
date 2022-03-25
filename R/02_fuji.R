@@ -49,10 +49,12 @@ url_test_df <- url_test %>% tibble() %>% mutate(name = names(url_test)) %>% relo
 # FUJI data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+# Commands to start local F-UJI server in docker
 system2(command = "pwd")
 
 system2(command = "docker",
         args    = c("ps -a"))
+
 
 # Function to query local FUJI server with guids
 fuji_local_server <- function(rd_id){
@@ -75,9 +77,11 @@ fuji_local_server <- function(rd_id){
   return(fuji_local_parsed)
 }
 
+# Sample for testing purposes
 sample <- sample(charite_rd_2020_guid, 2)
 fuji_local_list <- map(sample, fuji_local_server)
 
+# Create rate delay (not necessary for local server)
 rate <- rate_delay(5)
 slow_fuji <-
   slowly(fuji_local_server, rate = rate, quiet = FALSE)
@@ -90,8 +94,8 @@ fuji_local_list <-
 fuji_local_list <- map(charite_rd_2020_guid, fuji_local_server)
 
 # Save data locally
-save(fuji_local_list, file = "output/Rdata/fuji_local_list_2022_03_04.Rdata")
-load("output/Rdata/fuji_local_list_2022_03_04.Rdata")
+save(fuji_local_list, file = "output/Rdata/fuji_local_list_2022_03_25.Rdata")
+load("output/Rdata/fuji_local_list_2022_03_25.Rdata")
 
 # Filter vector with dplyr 
 # https://stackoverflow.com/questions/44169164/dplyr-filter-on-a-vector-rather-than-a-dataframe-in-r
