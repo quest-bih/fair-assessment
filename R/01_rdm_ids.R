@@ -137,5 +137,28 @@ rm(path, charite_rd_2020, is_field_specific, is_general_purpose)
 # End ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
+# library(rcrossref)
+# library(roadoi)
+# 
+# # Create test data
+# test_data <- head(charite_rd_2020_clean$article, 10)
+# 
+# # Query unpaywall
+# test_unpaywall <- roadoi::oadoi_fetch(dois = test_data,
+#                                       email = "jan.taubitz@charite.de",
+#                                       .progress = "text")
+# 
+# # Query crossref
+# test_crossref <- id_converter(test_data, type = "doi")
+# # OR
+# test_crossref <- id_converter(test_unpaywall$doi, type = "doi")
+# 
+# # Flatten crossref data
+# test_crossref <- test_crossref[["records"]] %>% bind_cols() %>% select(doi, pmid)
+# 
+# # Join unpaywall and crossref data
+# test_result <- test_unpaywall %>%
+#   select(doi, journal_name) %>%
+#   full_join(test_crossref %>% mutate(doi = tolower(doi)), by = "doi") %>%
+#   relocate(pmid, .after = doi)
 
