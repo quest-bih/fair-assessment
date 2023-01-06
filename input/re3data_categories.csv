@@ -1,0 +1,72 @@
+repository_type;repository;re3_type;n;comment
+disciplinary repository;gene expression omnibus;disciplinary;113;
+general-purpose repository;open science framework;other;46;
+general-purpose repository;zenodo;other;39;
+general-purpose repository;figshare;other;37;
+disciplinary repository;proteomics identifications database;disciplinary;32;
+disciplinary repository;sequence read archive;disciplinary;25;
+general-purpose repository;github;other;22;
+disciplinary repository;european genome-phenome archive;unknown;21;
+disciplinary repository;ncbi nucleotide;disciplinary;21;
+disciplinary repository;european nucleotide archive;disciplinary;19;
+disciplinary repository;arrayexpress;disciplinary;16;
+disciplinary repository;worldwide protein data bank;disciplinary;11;
+general-purpose repository;mendeley data;other;10;
+disciplinary repository;dbgap;unknown;7;
+disciplinary repository;mass spectrometry interactive virtual environment;disciplinary;7;
+disciplinary repository;the electron microscopy data bank;disciplinary;7;
+disciplinary repository;the european genome-phenome archive;disciplinary;7;
+disciplinary repository;ncbi sequence read archive;unknown;5;should be called sequence read archive
+disciplinary repository;gwas catalog;unknown;4;should be called gwas central
+general-purpose repository;dryad;other;4;
+disciplinary repository;genbank;disciplinary;3;
+disciplinary repository;4d nucleome consortium data portal;unknown;2;
+disciplinary repository;addgene;disciplinary;2;
+disciplinary repository;biostudies;disciplinary;2;
+disciplinary repository;fastgenomics;unknown;2;
+disciplinary repository;gwas;unknown;2;should be called gwas central
+disciplinary repository;metabolights;disciplinary;2;
+general-purpose repository;edmond;institutional;2;
+general-purpose repository;harvard dataverse;disciplinary;2;
+general-purpose repository;heidata;institutional;2;
+general-purpose repository;osf;unknown;2;alias for open science framework
+disciplinary repository;aibl;unknown;1;
+disciplinary repository;alzheimer's disease neuroimaging initiative image and data archive;disciplinary;1;
+disciplinary repository;bbmri.nl;unknown;1;
+disciplinary repository;bioimage;unknown;1;
+disciplinary repository;bioproject;disciplinary;1;
+disciplinary repository;cats;unknown;1;
+disciplinary repository;ccdc karlsruhe;unknown;1;
+disciplinary repository;center for statistical genetics;unknown;1;
+disciplinary repository;clinicaltrials.gov;disciplinary;1;
+disciplinary repository;"clinvar;ncbi nucleotide";unknown;1;two names in one string, but both disciplinary
+general-purpose repository;code ocean;disciplinary;1;code ocean should also be general-purpose, imo
+disciplinary repository;connectone;unknown;1;
+disciplinary repository;database of genotypes and  phenotypes;unknown;1;
+disciplinary repository;ddbj;unknown;1;
+disciplinary repository;decipher;unknown;1;
+disciplinary repository;dzne;unknown;1;
+disciplinary repository;empiar;unknown;1;
+disciplinary repository;european genome-phenom archive;unknown;1;
+disciplinary repository;flowrepository;disciplinary;1;
+disciplinary repository;gnps;disciplinary;1;
+disciplinary repository;immuneaccess;disciplinary;1;
+disciplinary repository;lcsb;unknown;1;
+disciplinary repository;metabolomics workbench;unknown;1;
+disciplinary repository;morphosource;disciplinary;1;
+disciplinary repository;ncbi protein;disciplinary;1;
+disciplinary repository;ncbi trace archive;disciplinary;1;
+disciplinary repository;neurovault;disciplinary;1;
+disciplinary repository;openneuro;disciplinary;1;
+disciplinary repository;pgs catalog;unknown;1;
+disciplinary repository;proteomeexchange;unknown;1;
+disciplinary repository;sasbdb;disciplinary;1;
+disciplinary repository;single cell portal;unknown;1;
+disciplinary repository;synapse;other;1;
+disciplinary repository;terra;disciplinary;1;
+disciplinary repository;virtual trials archives;unknown;1;
+general-purpose repository;fairdata ida research data storage service;other;1;
+general-purpose repository;gitlab;unknown;1;
+general-purpose repository;opara;institutional;1;
+general-purpose repository;ptb-oar;institutional;1;
+general-purpose repository;zivahub;institutional;1;
