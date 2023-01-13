@@ -106,7 +106,7 @@ save_data_xlsx <- function(df, name) {
 # Remove unused objects ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-rm(path, repository_names)
+rm(path, repository_names, test)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # End ----
