@@ -28,6 +28,9 @@ charite_rd_2021 <- charite_rd_2021 |>
          license_name) |>
   mutate(repository = case_when(best_identifier == "http://www.addgene.org/129027/" ~ "Addgene",
                                 best_identifier == "http://doi.org/10.5281/zenodo.5524539" ~ "Zenodo",
+                                repository == "zenodo" ~ "Zenodo",
+                                repository == "osf" ~ "Open Science Framework",
+                                str_detect(repository, "^GWAS.*") ~ "GWAS",
                                 TRUE ~ repository))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
