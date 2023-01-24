@@ -202,14 +202,14 @@ l
 
 # Gather detailed information about repositories
 
-# repository_info <- data.frame()
-# 
-# for (url in URLs) {
-#   repository_metadata_request <- GET(url)
-#   repository_metadata_XML <-read_xml(repository_metadata_request)
-#   results_list <- extract_repository_info(repository_metadata_XML)
-#   repository_info <- rbind(repository_info, results_list)
-# }
+repository_info <- data.frame()
+
+for (url in URLs) {
+  repository_metadata_request <- GET(url)
+  repository_metadata_XML <-read_xml(repository_metadata_request)
+  results_list <- extract_repository_info(repository_metadata_XML)
+  repository_info <- rbind(repository_info, results_list)
+}
 
 # Function xml_structure can be very useful for inspecting the structure of XML objects
 # xml_structure(repository_metadata_XML)
