@@ -150,7 +150,7 @@ unpaywall_fo_r_join %>%
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Use case for re3date analysis 
-# https://github.com/re3data/using_the_re3data_API/blob/main/re3data_API_certification_by_type.ipynb
+# https://github.com/re3data/using_the_re3data_API
 
 # Obtain re3data IDs of all repositories indexed in re3data
 re3data_request <- GET("http://re3data.org/api/v1/repositories")
