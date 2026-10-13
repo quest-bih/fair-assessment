@@ -1,6 +1,6 @@
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # This script queries the local FUJI server ----
-# Contact: anastasiia.iarkaeva@charite.de
+# Contact: anastasiia.iarkaeva@charite.de (previous ownner: jan.taubitz@charite.de, Email not accessible)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

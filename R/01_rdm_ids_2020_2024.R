@@ -1,6 +1,6 @@
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # This script imports the Open Data records, after ODDPub, Numbat and manual verification ----
-# Contact: anastasiia.iarkaeva@charite.de
+# Contact: anastasiia.iarkaeva@charite.de (previous ownner: jan.taubitz@charite.de, Email not accessible)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -345,7 +345,7 @@ save_data_xlsx(df = list(charite_rd_od_cleaned_repos), name = c("input_clean_202
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Save necessary objects for next step ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-keep <- c("charite_rd_od_cleaned_repos")
+keep <- c("charite_rd_od_cleaned_repos", "save_data_xlsx")
 rm(list = setdiff(ls(), keep))
 save(list = ls(), file = "output/charite_data_cleaned_repos_2020_2024.Rdata")
 
