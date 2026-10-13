@@ -259,7 +259,7 @@ repository_names <- repository_names |>
          repo_key = norm_repos(repository)) |>
   distinct(repo_key, .keep_all = TRUE)
 
-write.csv2(select(repository_names, -repo_key), "repository_categories_2020_2024.csv", row.names = FALSE)
+write.csv2(select(repository_names, -repo_key), "output/repository_categories_2020_2024.csv", row.names = FALSE)
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -304,7 +304,7 @@ charite_rd_od_cleaned_repos |>
   filter(is.na(repository_type)) |>
   count(repository_re3data, sort = TRUE)
 
-write.csv2(charite_rd_od_cleaned_repos, "charite_ids_repos_2020_2024.csv", row.names = FALSE)
+write.csv2(charite_rd_od_cleaned_repos, "output/charite_ids_repos_2020_2024.csv", row.names = FALSE)
 
 
 
@@ -321,7 +321,7 @@ write.csv2(charite_rd_od_cleaned_repos, "charite_ids_repos_2020_2024.csv", row.n
 count_repos <- charite_rd_od_cleaned_repos |>
   count(repository_re3data, sort = T)
 
-write.csv2(count_repos,"count_repos_2020_2024.csv")
+write.csv2(count_repos,"output/count_repos_2020_2024.csv")
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
