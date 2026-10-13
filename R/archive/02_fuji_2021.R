@@ -32,33 +32,38 @@ fuji_local_server <- function(rd_id){
    # `Authorization` = 'Basic dGVzdDp0ZXN0',
     `Content-Type` = 'application/json')
   
-  data <- list(metadata_service_endpoint = "", 
-               # metadata_service_endpoint http://ws.pangaea.de/oai/provider gives less scores?!
+  data <- list(# metadata_service_endpoint = "", 
+               metadata_service_endpoint = "http://ws.pangaea.de/oai/provider", # gives less scores?!
                metadata_service_type = "oai_pmh",
+               use_datacite = TRUE,
+               use_github = FALSE,
+               use_headless = FALSE,
                object_identifier = rd_id,
-               test_debug = TRUE,
-               use_datacite = TRUE)
+               #metric_version = "metrics_v0.5",
+               test_debug = TRUE)
   
   res <- httr::POST(url = 'http://localhost:1071/fuji/api/v1/evaluate', httr::add_headers(.headers=headers), body = data, encode = "json")  
+  res$status_code
+  httr::content(res, as = "text", encoding = "UTF-8")
   
-  fuji_local_parsed <- content(res) # , as = "parsed" removed because it causes problems with some guids
+  fuji_local_parsed <- content(res, encoding = "UTF-8") # , as = "parsed" removed because it causes problems with some guids
   return(fuji_local_parsed)
 }
 
 # Create vector with research data ids
 charite_rd_2021_guids <- charite_rd_2021 |> pull(best_identifier)
 
-# Sample for testing purposes
-sample <- sample(charite_rd_2021_guids, 2)
-fuji_local_list <- map(sample, fuji_local_server)
-
 # Create rate delay (not necessary for local server)
-rate <- rate_delay(1)
-slow_fuji <-
-  slowly(fuji_local_server, rate = rate, quiet = FALSE)
+rate <- rate_delay(0.5)
+slow_fuji <- slowly(fuji_local_server, rate = rate, quiet = FALSE)
 
-fuji_local_list <-
-  map(charite_rd_2021_guids, slow_fuji)
+# Test
+set.seed(123)
+sample_5 <- sample(charite_rd_2021_guids, 5)
+
+fuji_local_list_test <- map(sample_5, fuji_local_server)
+
+fuji_local_list <- map(charite_rd_2021_guids, slow_fuji)
 
 # Time: 2023-01-05 12:15-
 

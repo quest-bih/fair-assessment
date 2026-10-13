@@ -19,25 +19,34 @@ library(roadoi)
 #library(stringdist)
 library(tm)
 library(xml2)
+library(purrr)
 
 
-load("output/Rdata/charite_rd_2020_join.Rdata")
-source("R/01_rdm_ids.R")
+#load("output/Rdata/charite_rd_2020_join.Rdata")
+source("R/01_rdm_ids_all_years.R")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Get unpaywall data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-article_dois <- charite_rd_2020_clean %>%
-  pull(article) %>%
+# 1916 all years
+article_dois <- charite_rd_od_cleaned_repos %>%
+  pull(doi) %>%
   unique
 
 # output_unpaywall <- roadoi::oadoi_fetch(dois = article_dois,
-#                                         email = "jan.taubitz@charite.de",
+#                                         email = "anastasiia.iarkaeva@charite.de",
 #                                         .progress = "text")
-# 
-# save(output_unpaywall, file = "output/Rdata/output_unpaywall.Rdata")
-load(file = "output/Rdata/output_unpaywall.Rdata")
+
+safe <- possibly(\(doi) roadoi::oadoi_fetch(dois = doi,
+                                     email = "anastasiia.iarkaeva@charite.de"),
+                 otherwise = NULL)
+
+output_unpaywall_df <- map(article_dois, safe, .progress = T)
+
+output_unpaywall <- bind_rows(output_unpaywall_df)
+
+save(output_unpaywall, file = "output/Rdata/output_unpaywall_2020_2024.Rdata")
+load(file = "output/Rdata/output_unpaywall_2020_2024.Rdata")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Get unpaywall data for all charite publications 2020----
