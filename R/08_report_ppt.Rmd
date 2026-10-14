@@ -1,0 +1,43 @@
+---
+title: "FAIR Assessment"
+author: "Jan Taubitz"
+date: "25.11.2021"
+output: 
+  powerpoint_presentation:
+    reference_doc: QUEST3.pptx
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(dpi = 300, fig.width = 6, echo = FALSE)
+# Command to knit document
+# rmarkdown::render("R/07_report_ppt.Rmd", output_file = "ppt_report.pptx", output_dir = "output", knit_root_dir = getwd())
+```
+
+```{r, include=FALSE}
+library(tidyverse)
+library(treemapify)
+source("R/06_charts.R")
+```
+## Repository Count
+
+```{r repository count}
+chart_bar_count
+```
+
+## Repository Treemap
+
+```{r repository treemap}
+chart_treemap_repository 
+```
+
+## Repository Type
+
+```{r repository}
+chart_violin_repository
+```
+
+## Licenses
+
+```{r license}
+chart_bar_license
+```

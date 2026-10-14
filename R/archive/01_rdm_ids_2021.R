@@ -28,10 +28,10 @@ charite_rd_2021 <- charite_rd_2021 |>
          license_name) |>
   mutate(repository = case_when(best_identifier == "http://www.addgene.org/129027/" ~ "Addgene",
                                 best_identifier == "http://doi.org/10.5281/zenodo.5524539" ~ "Zenodo",
+                                repository == "zenodo" ~ "Zenodo",
+                                repository == "osf" ~ "Open Science Framework",
+                                str_detect(repository, "^GWAS.*") ~ "GWAS",
                                 TRUE ~ repository))
-# repeating ids
-#n_occur <- data.frame(table(charite_rd_2021$best_identifier))
-
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Load dataframe with repository names ----
@@ -56,11 +56,6 @@ charite_rd_2021 <- charite_rd_2021 |>
 
 charite_rd_2021 <- charite_rd_2021 |>
   mutate(repository = case_when(repository == "ClinVAR;NCBI Nucleotide" ~ "NCBI Nucleotide",
-                                repository == "zenodo" ~ "Zenodo",
-                                repository == "GWAS cata" ~ "GWAS Catalog",
-                                repository == "GWAS" ~ "GWAS Catalog",
-                                repository == "SRA" ~ "NCBI Sequence Read Archive",
-                                repository == "osf" ~ "OSF",
                                 TRUE ~ repository)) |>
   mutate(repository_re3data = repository) |>
   mutate(repository = case_when(repository_re3data == "European Nucleotide Archive" ~ "ENA",
@@ -89,12 +84,6 @@ charite_rd_2021 <- charite_rd_2021 |>
          article = str_replace_all(article, "%29", ")")) |>
   mutate(best_identifier = str_replace(best_identifier, "^https:\\/d", "https:\\/\\/d")) 
 
-count_repos <- charite_rd_2021 |>
-  count(repository,sort = T)
-
-write.csv2(count_repos,"count_repos.csv", sep = ";")
-
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Function to save df output as xlsx ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -117,7 +106,7 @@ save_data_xlsx <- function(df, name) {
 # Remove unused objects ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-rm(path, repository_names)
+rm(path, repository_names, test)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # End ----
